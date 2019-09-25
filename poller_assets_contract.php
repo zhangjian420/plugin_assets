@@ -1,7 +1,7 @@
 <?php
-chdir(dirname(__FILE__));
-chdir('../../');
-include_once('./include/global.php');
+chdir(__DIR__);
+chdir("../../");
+require("./include/cli_check.php");
 cacti_log("<<<<<<<<<<<<<<<<合同到期告警定时任务执行>>>>>>>>>>>>>>>> " . date('Y-m-d H:i:s', time()));
 //$assets_contract_array = db_fetch_assoc("select assets_contract.*,notification_lists.emails from plugin_assets_contract as assets_contract left join plugin_notification_lists as notification_lists on assets_contract.notification_id=notification_lists.id where 1=1 and assets_contract.is_alarm='on' and notification_lists.emails is not null and assets_contract.signing_date<=now() and assets_contract.due_date >=now()");
 $assets_contract_array = db_fetch_assoc("select assets_contract.*,notification_lists.emails from plugin_assets_contract as assets_contract left join plugin_notification_lists as notification_lists on assets_contract.notification_id=notification_lists.id where 1=1 and assets_contract.is_alarm='on' and assets_contract.signing_date<=now() and assets_contract.due_date >=now()");

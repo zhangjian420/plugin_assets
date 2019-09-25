@@ -5,11 +5,11 @@ function assets_tabs($current_tab='documents') {
 	/* present a tabbed interface */
 	$tabs = array(
 		'documents'    => __('文档管理', 'assets'),
-		'equipment'      => __('设备管理', 'assets'),
-		'ipaddress_group' => __('IP地址组管理', 'assets'),
-		'ipaddress' => __('IP地市管理', 'assets'),
 		'contract'=> __('合同管理', 'assets'),
-		'type'=> __('类型管理', 'assets')
+		'equipment'      => __('设备管理', 'assets'),
+		'type'=> __('类型管理', 'assets'),
+		'ipaddress_group' => __('IP地址组管理', 'assets'),
+		'ipaddress' => __('IP地址管理', 'assets')
 	);
 	$tabs = api_plugin_hook_function('assets_tabs', $tabs);//资产管理table
 	get_filter_request_var('tab', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^([a-zA-Z]+)$/')));

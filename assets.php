@@ -69,7 +69,7 @@ switch(get_request_var('action')) {
 	case 'ipaddress':
 		general_header();
 		assets_tabs('ipaddress');
-		ipaddress();//IP地市管理
+		ipaddress();//IP地址管理
 		bottom_footer();
 		break;
 	case 'ipaddress_edit'://IP地址新增编辑页面

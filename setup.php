@@ -64,7 +64,7 @@ function assets_draw_navigation_text ($nav) {
     $nav['assets.php:ipaddress_group'] = array('title' => "IP地址组管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=ipaddress_group', 'level' => '1');
     $nav['assets.php:ipaddress_group_edit'] = array('title' => "IP地质组编辑", 'mapping' => 'assets:,assets.php:ipaddress_group', 'url' => 'assets.php?action=ipaddress_group_edit', 'level' => '2');
 
-    $nav['assets.php:ipaddress'] = array('title' => "IP地市管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=ipaddress', 'level' => '1');
+    $nav['assets.php:ipaddress'] = array('title' => "IP地址管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=ipaddress', 'level' => '1');
     $nav['assets.php:ipaddress_edit'] = array('title' => "IP地市编辑", 'mapping' => 'assets:,assets.php:ipaddress', 'url' => 'assets.php?action=ipaddress_edit', 'level' => '2');
 
     $nav['assets.php:contract'] = array('title' => "合同管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=contract', 'level' => '1');
