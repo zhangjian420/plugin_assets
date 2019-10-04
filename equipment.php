@@ -213,13 +213,16 @@ function equipment_almacenar_save(){
     //设备设备表
     $equipment_almacenar['equipment_id'] = get_filter_request_var('equipment_id');//设备ID
     $equipment_almacenar['operation_type'] = get_nfilter_request_var('operation_type');//操作类型：入库-出库
-    $equipment_almacenar['count'] = form_input_validate(get_nfilter_request_var('count'), 'count', '^[0-9]+$', false, 3);//数量
     if($equipment_almacenar['operation_type']=='入库'){
         $equipment_almacenar['contract_number'] = form_input_validate(get_nfilter_request_var('contract_number'), 'contract_number', '', true, 3);//合同编号
     }
-    if($equipment_almacenar['operation_type']=='出库'){
-        $equipment_almacenar['lend_person'] = form_input_validate(get_nfilter_request_var('lend_person'), 'lend_person', '', false, 3);//借出人出库时填写
-    }
+    $equipment_almacenar['equipment_sn'] = form_input_validate(get_nfilter_request_var('equipment_sn'), 'equipment_sn', '', false, 3);//设备SN号
+    $equipment_almacenar['count'] = form_input_validate(get_nfilter_request_var('count'), 'count', '^[0-9]+$', false, 3);//数量
+    $equipment_almacenar['operation_date'] = form_input_validate(get_nfilter_request_var('operation_date'), 'operation_date', '', false, 3);//设备出入库日期
+    $equipment_almacenar['operation_person'] = form_input_validate(get_nfilter_request_var('operation_person'), 'operation_person', '', false, 3);//设备出入库人
+    // if($equipment_almacenar['operation_type']=='出库'){
+    //     $equipment_almacenar['operation_person'] = form_input_validate(get_nfilter_request_var('operation_person'), 'operation_person', '', false, 3);//借出人出库时填写
+    // }
     $equipment_almacenar['description'] = form_input_validate(get_nfilter_request_var('description'), 'description', '', true, 3);//备注说明
     $equipment_almacenar['last_modified'] = date('Y-m-d H:i:s', time());//最后修改时间
     $equipment_almacenar['modified_by'] = $_SESSION['sess_user_id'];//修改人
@@ -395,6 +398,14 @@ function equipment_almacenar_edit(){
             'value' => (isset($data['contract_number']) ? $data['contract_number']:'')
         );
         $field_array['contract_number']=$contract_number;
+        $equipment_sn=$count=array(
+            'friendly_name' => '设备SN号',
+            'method' => 'textbox',
+            'max_length' => 10,
+            'description' =>'请正确填写设备SN号',
+            'value' => ''
+        );
+        $field_array['equipment_sn']=$equipment_sn;
         $count=array(
             'friendly_name' => '入库数量',
             'method' => 'textbox',
@@ -403,6 +414,22 @@ function equipment_almacenar_edit(){
             'value' => ''
         );
         $field_array['count']=$count;
+        $operation_date=array(
+            'friendly_name' => '入库日期',
+            'method' => 'textbox',
+            'max_length' => 10,
+            'description' =>'请正确填写入库日期',
+            'value' => ''
+        );
+        $field_array['operation_date']=$operation_date;
+        $operation_person=array(
+            'friendly_name' => '入库人',
+            'method' => 'textbox',
+            'max_length' => 32,
+            'description' =>'请正确填写入库人',
+            'value' => ''
+        );
+        $field_array['operation_person']=$operation_person;
     } 
     if ($operation_type=='出库') {
         $operation_type_field=array(
@@ -411,14 +438,14 @@ function equipment_almacenar_edit(){
             'value' => '出库'
         );
         $field_array['operation_type']=$operation_type_field;
-        $lend_person=array(
-            'friendly_name' => '借出人',
+        $equipment_sn=$count=array(
+            'friendly_name' => '设备SN号',
             'method' => 'textbox',
-            'max_length' => 32,
-            'description' =>'请正确填写借出人',
+            'max_length' => 10,
+            'description' =>'请正确填写设备SN号',
             'value' => ''
         );
-        $field_array['lend_person']=$lend_person;
+        $field_array['equipment_sn']=$equipment_sn;
         $count=array(
             'friendly_name' => '出库数量',
             'method' => 'textbox',
@@ -427,6 +454,22 @@ function equipment_almacenar_edit(){
             'value' => ''
         );
         $field_array['count']=$count;
+        $operation_date=array(
+            'friendly_name' => '出库日期',
+            'method' => 'textbox',
+            'max_length' => 10,
+            'description' =>'请正确填写出库日期',
+            'value' => ''
+        );
+        $field_array['operation_date']=$operation_date;
+        $operation_person=array(
+            'friendly_name' => '借出人',
+            'method' => 'textbox',
+            'max_length' => 32,
+            'description' =>'请正确填写借出人',
+            'value' => ''
+        );
+        $field_array['operation_person']=$operation_person;
     } 
     $description=array(
         'friendly_name' => '备注',
@@ -461,44 +504,171 @@ function equipment_almacenar_edit(){
 			</td>
 		</tr>
 	</table>
+    <script>
+		$(document).ready(function(){
+            $("#operation_date").prop("readonly", true).datepicker({
+                changeMonth: false,
+                dateFormat: "yy-mm-dd",
+                onClose: function(selectedDate) {
+
+                }
+            });
+        });
+	</script>
     <?php
     form_end();//表单编辑结束
 }
 //设备出入库记录页面
-function equipment_almacenar_list(){
-    assets_tabs('equipment');//设备管理选项卡
+function equipment_almacenar(){
+    global $item_rows;
     $equipment_id=get_request_var('equipment_id');
     $equipment= db_fetch_row_prepared('SELECT * FROM plugin_assets_equipment WHERE id = ?', array($equipment_id));
-    $equipment_almacenar_list= db_fetch_assoc('SELECT * FROM plugin_assets_equipment_almacenar WHERE equipment_id = '. $equipment_id . ' ORDER BY last_modified DESC');
-    html_start_box(__('[设备出入库记录: %s]', html_escape($equipment['name'])), '100%', true, '3', 'center', '');
-    $equipment_almacenar_html="";
-    $equipment_almacenar_html.="<div class='dataTitle'>";
-    $equipment_almacenar_html.="<div class='dataCloumn borderRight'>操作类型</div>";
-    $equipment_almacenar_html.="<div class='dataCloumn borderRight'>数量</div>";
-    $equipment_almacenar_html.="<div class='dataCloumn borderRight'>操作人</div>";
-    $equipment_almacenar_html.="<div class='dataCloumn'>操作时间</div>";
-    $equipment_almacenar_html.="</div>";
-    if(cacti_count($equipment_almacenar_list)==0){
-        $equipment_almacenar_html.="<div class='dataRow dataOdd'>暂无数据</div>";
-    }else{
-        foreach($equipment_almacenar_list as $equipment_almacenar){
-            $equipment_almacenar_html.="<div class='dataRow dataOdd'>";
-            $equipment_almacenar_html.="<div class='dataCloumn'>" .$equipment_almacenar['operation_type'] . "</div>";
-            $equipment_almacenar_html.="<div class='dataCloumn'>" .$equipment_almacenar['count'] . "</div>";
-            $equipment_almacenar_html.="<div class='dataCloumn'>" .get_username($equipment_almacenar['modified_by']). "</div>";
-            $equipment_almacenar_html.="<div class='dataCloumn'>" .$equipment_almacenar['last_modified'] . "</div>";
-            $equipment_almacenar_html.="</div>";
-        }
+    $filters = array(
+        'rows' => array(
+            'filter' => FILTER_VALIDATE_INT,
+            'pageset' => true,
+            'default' => '-1'
+        ),
+        'page' => array(
+            'filter' => FILTER_VALIDATE_INT,
+            'default' => '1'
+        ),
+        'filter' => array(
+            'filter' => FILTER_CALLBACK,
+            'pageset' => true,
+            'default' => '',
+            'options' => array('options' => 'sanitize_search_string')
+        ),
+        'sort_column' => array(
+            'filter' => FILTER_CALLBACK,
+            'default' => 'id',
+            'options' => array('options' => 'sanitize_search_string')
+        ),
+        'sort_direction' => array(
+            'filter' => FILTER_CALLBACK,
+            'default' => 'ASC',
+            'options' => array('options' => 'sanitize_search_string')
+        )
+    );
+    validate_store_request_vars($filters, 'sess_equipment_almacenar');
+    if (get_request_var('rows') == -1) {
+        $rows = read_config_option('num_rows_table');
+    } else {
+        $rows = get_request_var('rows');
     }
-    print "$equipment_almacenar_html";
+    html_start_box(__('[设备出入库记录: %s]', html_escape($equipment['name'])), '100%', false, '3', 'center', '');
     ?>
-    <!-- 操作按钮 -->
-    <table style='width:100%;text-align:center;'>
-		<tr>
-			<td class='saveRow'>
-                <input type="button" onclick="window.location.href='assets.php?action=equipment';" value="返回" role="button">
-			</td>
-		</tr>
-	</table>
+    <tr class='even'>
+        <td>
+            <form id='form_equipment_almacenar' action='assets.php?action=equipment_almacenar'>
+                <input type="hidden" id="equipment_id" value="<?php print $equipment_id;?>">
+                <table class='filterTable'>
+                    <tr>
+                        <td>
+                            <?php print __('Search');?>
+                        </td>
+                        <td>
+                            <input type='text' class='ui-state-default ui-corner-all' id='filter' size='25' value='<?php print html_escape_request_var('filter');?>'>
+                        </td>
+                        <td>
+                            设备出入库记录
+                        </td>
+                        <td>
+                            <select id='rows' onChange='applyFilter()'>
+                                <option value='-1'<?php print (get_request_var('rows') == '-1' ? ' selected>':'>') . __('Default');?></option>
+                                <?php
+                                if (cacti_sizeof($item_rows)) {
+                                    foreach ($item_rows as $key => $value) {
+                                        print "<option value='" . $key . "'"; if (get_request_var('rows') == $key) { print ' selected'; } print '>' . html_escape($value) . "</option>\n";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </td>
+                        <td>
+						<span>
+							<input type='button' class='ui-button ui-corner-all ui-widget' id='refresh' value='<?php print __esc('Go');?>' title='<?php print __esc('Set/Refresh Filters');?>'>
+							<input type='button' class='ui-button ui-corner-all ui-widget' id='clear' value='<?php print __esc('Clear');?>' title='<?php print __esc('Clear Filters');?>'>
+						</span>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <script type='text/javascript'>
+                //查询操作函数
+                function applyFilter() {
+                    strURL  = 'assets.php?action=equipment_almacenar&header=false';
+                    strURL += '&equipment_id='+$('#equipment_id').val();
+                    strURL += '&filter='+$('#filter').val();
+                    strURL += '&rows='+$('#rows').val();
+                    loadPageNoHeader(strURL);
+                }
+                //重置查询函数
+                function clearFilter() {
+                    strURL = 'assets.php?action=equipment_almacenar&clear=1&header=false';
+                    strURL += '&equipment_id='+$('#equipment_id').val();
+                    loadPageNoHeader(strURL);
+                }
+                $(function() {
+                    $('#refresh').click(function() {
+                        applyFilter();
+                    });
+                    $('#clear').click(function() {
+                        clearFilter();
+                    });
+                    $('#form_equipment_almacenar').submit(function(event) {
+                        event.preventDefault();
+                        applyFilter();
+                    });
+                });
+            </script>
+        </td>
+    </tr>
     <?php
+    html_end_box();
+    $sql_where=' AND assets_equipment_almacenar.equipment_id='. $equipment_id;
+    if (get_request_var('filter') != '') {
+        $sql_where =$sql_where . " AND (assets_equipment_almacenar.operation_type LIKE '%" . get_request_var('filter') . "%' OR assets_equipment_almacenar.operation_person like '%" . get_request_var('filter') . "%' OR assets_equipment_almacenar.description like '%" . get_request_var('filter') . "%')";
+    } 
+    $total_rows = db_fetch_cell("SELECT count(*) FROM plugin_assets_equipment_almacenar AS assets_equipment_almacenar LEFT JOIN user_auth AS user_auth ON assets_equipment_almacenar.modified_by=user_auth.id WHERE 1=1 $sql_where");
+    $sql_order = get_order_string();
+    $sql_limit = ' LIMIT ' . ($rows*(get_request_var('page')-1)) . ',' . $rows;
+    $equipment_almacenar_list = db_fetch_assoc("SELECT assets_equipment_almacenar.*,user_auth.username AS modified_name FROM plugin_assets_equipment_almacenar AS assets_equipment_almacenar LEFT JOIN user_auth AS user_auth ON assets_equipment_almacenar.modified_by=user_auth.id WHERE 1=1 $sql_where $sql_order $sql_limit");
+    cacti_log("SELECT assets_equipment_almacenar.*,user_auth.username AS modified_name FROM plugin_assets_equipment_almacenar AS assets_equipment_almacenar LEFT JOIN user_auth AS user_auth ON assets_equipment_almacenar.modified_by=user_auth.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
+    $nav = html_nav_bar('assets.php?action=equipment_almacenar&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, "出入库记录", 'page', 'main');
+    form_start('assets.php?action=equipment_almacenar', 'chk');//分页表单开始
+    print $nav;
+    html_start_box('', '100%', '', '3', 'center', '');
+    $display_text = array(
+        'id'      => array('display' => __('ID'),        'align' => 'left', 'sort' => 'ASC', 'tip' => "ID"),
+        'operation_type'    => array('display' => "操作类型", 'align' => 'left',  'sort' => 'ASC', 'tip' => "操作类型"),
+        'operation_date'    => array('display' => "入库/出库日期", 'align' => 'left',  'sort' => 'ASC', 'tip' => "入库/出库日期"),
+        'operation_person'    => array('display' => "出库/入库人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "出库/入库人"),
+        'count'    => array('display' => "数量", 'align' => 'left',  'sort' => 'ASC', 'tip' => "数量"),
+        'description'    => array('display' => "备注", 'align' => 'left',  'sort' => 'ASC', 'tip' => "备注"),
+        'modified_name'    => array('display' => "操作人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "操作人"),
+        'last_modified' => array('display' =>'操作时间', 'align' => 'left', 'sort' => 'ASC', 'tip' => "操作时间")
+    );
+    html_header_sort($display_text, get_request_var('sort_column'), get_request_var('sort_direction'), false,'assets.php?action=equipment_almacenar&equipment_id=' . $equipment_id);
+    if (cacti_sizeof($equipment_almacenar_list)) {
+        foreach ($equipment_almacenar_list as $equipment_almacenar) {
+            form_alternate_row('line' . $equipment_almacenar['id'], true);
+            form_selectable_cell($equipment_almacenar['id'], $equipment_almacenar['id'], '', 'left');
+            form_selectable_cell(filter_value($equipment_almacenar['operation_type'], get_request_var('filter')),$equipment_almacenar['id'],'','left');
+            form_selectable_cell(filter_value($equipment_almacenar['operation_date'], get_request_var('filter')),$equipment_almacenar['id'],'','left');
+            form_selectable_cell(filter_value($equipment_almacenar['operation_person'], get_request_var('filter')),$equipment_almacenar['id'],'','left');
+            form_selectable_cell($equipment_almacenar['count'],$equipment_almacenar['id'],'','left');
+            form_selectable_cell(filter_value($equipment_almacenar['description'], get_request_var('filter')),$equipment_almacenar['id'],'','left');
+            form_selectable_cell($equipment_almacenar['modified_name'],$equipment_almacenar['id'],'','left');
+            form_selectable_cell(substr($equipment_almacenar['last_modified'],0,16), $equipment_almacenar['id'], '', 'left');
+            form_end_row();
+        }
+    } else {
+        print "<tr class='tableRow'><td colspan='" . (cacti_sizeof($display_text)+1) . "'><em>" . "没有数据" . "</em></td></tr>\n";
+    }
+    html_end_box(false);//与谁对应
+    if (cacti_sizeof($equipment_almacenar_list)) {
+        print $nav;
+    }
+    form_end();//分页form结束
 }

@@ -31,7 +31,7 @@ function ipaddress_group_edit(){
             'textarea_rows' => '4',
             'textarea_cols' => '60',
             'max_length' => '1024',
-            'description' =>'请正确填写IP地址段(192.168.1.0/24)',
+            'description' =>'请正确填写IP地址段,多个地址段用英文分号分隔(192.168.1.0/24)',
             'class'=>'range',
 			'value' => (isset($data['ip_range']) ? $data['ip_range']:'')
 		),
@@ -231,7 +231,7 @@ function ipaddress_group(){
             form_alternate_row('line' . $ipaddress_group['id'], true);
             form_selectable_cell($ipaddress_group['id'], $ipaddress_group['id'], '');
             form_selectable_cell(filter_value($ipaddress_group['name'], get_request_var('filter'), 'assets.php?action=ipaddress_group_edit&id=' . $ipaddress_group['id']) , $ipaddress_group['id']);
-            form_selectable_cell(filter_value($ipaddress_group['ip_range'], get_request_var('filter')),$ipaddress_group['id'],'');
+            form_selectable_cell(filter_value(substr($ipaddress_group['ip_range'],0,8).'...', get_request_var('filter')),$ipaddress_group['id'],'');
             form_selectable_cell(filter_value($ipaddress_group['description'], get_request_var('filter')),$ipaddress_group['id'],'');
             form_selectable_cell(substr($ipaddress_group['last_modified'],0,16), $ipaddress_group['id'], '');
             form_selectable_cell(get_username($ipaddress_group['modified_by']),$ipaddress_group['id'],'');

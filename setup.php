@@ -59,7 +59,7 @@ function assets_draw_navigation_text ($nav) {
     $nav['assets.php:equipment'] = array('title' => "设备管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=equipment', 'level' => '1');
     $nav['assets.php:equipment_edit'] = array('title' => "设备编辑", 'mapping' => 'assets:,assets.php:equipment', 'url' => 'assets.php?action=equipment_edit', 'level' => '2');
     $nav['assets.php:equipment_almacenar_edit'] = array('title' => "设备出入库", 'mapping' => 'assets:,assets.php:equipment', 'url' => 'assets.php?action=equipment_almacenar_edit', 'level' => '2');
-    $nav['assets.php:equipment_almacenar_list'] = array('title' => "设备出入库记录", 'mapping' => 'assets:,assets.php:equipment', 'url' => 'assets.php?action=equipment_almacenar_list', 'level' => '2');
+    $nav['assets.php:equipment_almacenar'] = array('title' => "设备出入库记录", 'mapping' => 'assets:,assets.php:equipment', 'url' => 'assets.php?action=equipment_almacenar', 'level' => '2');
 
     $nav['assets.php:ipaddress_group'] = array('title' => "IP地址组管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=ipaddress_group', 'level' => '1');
     $nav['assets.php:ipaddress_group_edit'] = array('title' => "IP地质组编辑", 'mapping' => 'assets:,assets.php:ipaddress_group', 'url' => 'assets.php?action=ipaddress_group_edit', 'level' => '2');
@@ -69,6 +69,8 @@ function assets_draw_navigation_text ($nav) {
 
     $nav['assets.php:contract'] = array('title' => "合同管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=contract', 'level' => '1');
     $nav['assets.php:contract_edit'] = array('title' => "合同编辑", 'mapping' => 'assets:,assets.php:contract', 'url' => 'assets.php?action=contract_edit', 'level' => '2');
+    $nav['assets.php:contract_accessory_edit'] = array('title' => "合同附件编辑", 'mapping' => 'assets:,assets.php:contract', 'url' => 'assets.php?action=contract_accessory_edit', 'level' => '2');
+    $nav['assets.php:contract_accessory'] = array('title' => "合同附件记录", 'mapping' => 'assets:,assets.php:contract', 'url' => 'assets.php?action=contract_accessory', 'level' => '2');
 
     $nav['assets.php:type'] = array('title' => "类型管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=type', 'level' => '1');
     $nav['assets.php:type_edit'] = array('title' => "类型编辑", 'mapping' => 'assets:,assets.php:type', 'url' => 'assets.php?action=type_edit', 'level' => '2');

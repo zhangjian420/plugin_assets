@@ -47,9 +47,9 @@ switch(get_request_var('action')) {
 	case 'equipment_almacenar_save'://出入库
 		equipment_almacenar_save();
 		break;	
-	case 'equipment_almacenar_list'://出入库记录
+	case 'equipment_almacenar'://出入库记录
 		general_header();
-		equipment_almacenar_list();
+		equipment_almacenar();
 		bottom_footer();
 		break;
 	case 'ipaddress_group':
@@ -94,6 +94,19 @@ switch(get_request_var('action')) {
 	case 'contract_save'://合同保存
 		contract_save();
 		break;
+	case 'contract_accessory_edit'://合同附件新增编辑页面
+		general_header();
+		contract_accessory_edit();
+		bottom_footer();
+		break;
+	case 'contract_accessory_save'://合同附件保存
+		contract_accessory_save();
+		break;
+	case 'contract_accessory'://合同附件列表
+		general_header();
+		contract_accessory();
+		bottom_footer();
+		break;
 	case 'actions':
 		form_actions();
 		break;
@@ -134,7 +147,7 @@ function ajax_area(){
  */
 function form_actions() {
 	global $config;
-    global $documents_actions,$equipment_actions,$ipaddress_actions,$ipaddress_group_actions,$contract_actions;
+    global $documents_actions,$equipment_actions,$ipaddress_actions,$ipaddress_group_actions,$contract_actions,$contract_accessory_actions;
     /* ================= input validation ================= */
     get_filter_request_var('drp_action', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^([a-zA-Z0-9_]+)$/')));
 	/***********************文档管理操作begin ************************/
@@ -207,6 +220,7 @@ function form_actions() {
 			if ($selected_items != false) {
 				if (get_nfilter_request_var('drp_action') == '41') { /* delete */
 					db_execute('DELETE FROM plugin_assets_contract WHERE ' . array_to_sql_or($selected_items, 'id'));
+					db_execute('DELETE FROM plugin_assets_contract_accessory WHERE ' . array_to_sql_or($selected_items, 'contract_id'));
 				}
 			}
 			header('Location: assets.php?action=contract&header=false');
@@ -260,6 +274,106 @@ function form_actions() {
 		//合同删除确认页面end
 	}
 	/***********************合同管理操作end ************************/
+
+	/***********************合同附件管理操作begin ************************/
+	if(get_nfilter_request_var('drp_action') == '44'){
+		$contract_id=get_nfilter_request_var('contract_id');
+		//合同附件删除操作begin
+		if (isset_request_var('selected_items')) {
+			$selected_items = sanitize_unserialize_selected_items(get_nfilter_request_var('selected_items'));
+			if ($selected_items != false) {
+				if (get_nfilter_request_var('drp_action') == '44') { /* delete */
+					db_execute('DELETE FROM plugin_assets_contract_accessory WHERE ' . array_to_sql_or($selected_items, 'id'));
+				}
+			}
+			header('Location: assets.php?action=contract_accessory&contract_id=' . $contract_id . '&header=false');
+			exit;
+		}
+		//合同附件删除操作end
+        //合同附件删除确认页面begin
+		$contract_accessory_html = ''; $i = 0; $contract_accessory_id_list='';
+		foreach ($_POST as $var => $val) {
+			if (preg_match('/^chk_([0-9]+)$/', $var, $matches)) {
+				/* ================= input validation ================= */
+				input_validate_input_number($matches[1]);
+				$contract_accessory_name=html_escape(db_fetch_cell_prepared('SELECT name FROM plugin_assets_contract_accessory WHERE id = ?', array($matches[1])));
+				if(get_nfilter_request_var('drp_action') == '44'){//删除
+					$contract_accessory_html .= '<li>' . $contract_accessory_name  . '</li>';
+				}
+				$contract_accessory_id_list[$i] = $matches[1];
+				$i++;
+			}
+		}
+		top_header();
+		form_start('assets.php');
+		html_start_box($contract_accessory_actions[get_nfilter_request_var('drp_action')], '60%', '', '3', 'center', '');
+		if (isset($contract_accessory_id_list) && cacti_sizeof($contract_accessory_id_list)) {
+			if (get_nfilter_request_var('drp_action') == '44') { /* delete */
+				print "<tr>
+					<td class='textArea' class='odd'>
+						<p>点击'继续'删除以下合同附件</p>
+						<div class='itemlist'><ul>$contract_accessory_html</ul></div>
+					</td>
+				</tr>\n";
+				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick=\"window.location.href='assets.php?action=contract_accessory&contract_id=" . $contract_id . "&header=true';\">&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除合同附件'>";
+			}
+		} else {
+			raise_message(40);
+			header('Location: assets.php?action=contract_accessory&contract_id=' . $contract_id . '&header=false');
+			exit;
+		}
+        print "<tr>
+					<td class='saveRow'>
+						<input type='hidden' name='action' value='actions'>
+						<input type='hidden' name='contract_id' value='" . html_escape($contract_id) . "'>
+						<input type='hidden' name='selected_items' value='" . (isset($contract_accessory_id_list) ? serialize($contract_accessory_id_list) : '') . "'>
+						<input type='hidden' name='drp_action' value='" . html_escape(get_nfilter_request_var('drp_action')) . "'>
+						$save_html
+					</td>
+			   </tr>\n";
+		html_end_box();
+		form_end();
+		bottom_footer();
+		//合同附件删除确认页面end
+	}
+	/***********************合同附件管理操作begin ************************/
+
+	/***********************合同附件库管理操作begin ************************/
+	if(get_nfilter_request_var('drp_action') == '42'||get_nfilter_request_var('drp_action') == '43'){
+		$contract_id_list = ''; $i = 0;
+		foreach ($_POST as $var => $val) {
+			if (preg_match('/^chk_([0-9]+)$/', $var, $matches)) {
+				/* ================= input validation ================= */
+				input_validate_input_number($matches[1]);
+				/* ==================================================== */
+				$contract_id_list[$i] = $matches[1];
+				$i++;
+			}
+		}
+		if (isset($contract_id_list) && cacti_sizeof($contract_id_list)) {
+			if (get_nfilter_request_var('drp_action') == '42') {//附件上传操作
+				if(cacti_sizeof($contract_id_list)>1){
+					raise_message(2,'只能选择一条数据操作',MESSAGE_LEVEL_ERROR);
+					header('Location: assets.php?action=contract&header=false');
+					exit;
+				}
+				header('Location: assets.php?action=contract_accessory_edit&contract_id=' . $contract_id_list[0]);
+			}
+			if (get_nfilter_request_var('drp_action') == '43') {//附件下载操作
+				if(cacti_sizeof($contract_id_list)>1){
+					raise_message(2,'只能选择一条数据操作',MESSAGE_LEVEL_ERROR);
+					header('Location: assets.php?action=contract&header=false');
+					exit;
+				}
+				header('Location: assets.php?action=contract_accessory&contract_id=' . $contract_id_list[0]);
+			}
+		} else {
+			raise_message(40);
+			header('Location: assets.php?action=contract&header=false');
+			exit;
+		}
+	}
+	/***********************合同附件库管理操作end ************************/
 
 	/***********************IP地址组管理操作begin ************************/
 	if(get_nfilter_request_var('drp_action') == '51'){
@@ -519,6 +633,7 @@ function form_actions() {
 		//设备删除确认页面end
 	}
 	/***************************************设备删除操作end*************************************** */
+	/***********************设备出入库管理操作begin ************************/
 	if(get_nfilter_request_var('drp_action') == '21'||get_nfilter_request_var('drp_action') == '22'||get_nfilter_request_var('drp_action') == '23'){
 		$equipment_id_list = ''; $i = 0;
 		foreach ($_POST as $var => $val) {
@@ -553,7 +668,7 @@ function form_actions() {
 					header('Location: assets.php?action=equipment&header=false');
 					exit;
 				}
-				header('Location: assets.php?action=equipment_almacenar_list&equipment_id=' . $equipment_id_list[0]);
+				header('Location: assets.php?action=equipment_almacenar&equipment_id=' . $equipment_id_list[0]);
 				exit;
 			}
 		} else {
@@ -562,7 +677,7 @@ function form_actions() {
 			exit;
 		}
 	}
-	/***********************设备管理操作end ************************/
+	/***********************设备出入库管理操作end ************************/
 
 	/***********************类型管理操作begin ************************/
 	if(get_nfilter_request_var('drp_action') == '61'){

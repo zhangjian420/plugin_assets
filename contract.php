@@ -3,8 +3,15 @@
  * 合同管理主函数
  */
 $contract_actions = array(
-    41 => __('删除')
+    41 => __('删除'),
+    42 => __('上传附件'),
+    43 => __('下载附件')
 );
+
+$contract_accessory_actions = array(
+    44 => __('删除')
+);
+
 //合同新增编辑页面
 function contract_edit(){
     assets_tabs('contract');//合同管理选项卡
@@ -71,12 +78,12 @@ function contract_edit(){
             'class' => 'contentText',
             'value' => (isset($data['content_text']) ? $data['content_text']:''),
 		),
-		'path' => array(
-			'friendly_name' => '合同附件',
-            'method' => 'file',
-            'size' => '500',
-            'description' =>'请选择需要上传的文件'
-		),
+		// 'path' => array(
+		// 	'friendly_name' => '合同附件',
+        //     'method' => 'file',
+        //     'size' => '500',
+        //     'description' =>'请选择需要上传的文件'
+		// ),
 		'description' => array(
 			'friendly_name' => '合同备注',
 			'method' => 'textbox',
@@ -184,7 +191,7 @@ function contract_edit(){
 					}
 				});
                 $("div[style='formRadio']").css({float:'left',display:'flex'});
-            });
+        });
 	</script>
     <?php
     form_end(false);//表单编辑结束
@@ -214,28 +221,28 @@ function contract_save(){
         header('Location: assets.php?action=contract_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
 		exit;
 	}else{
-        if (isset($_FILES["path"]) && !empty($_FILES["path"]["name"])) {
-            $allowedExts = array("zip", "docx", "doc","xls", "xlsx", "rar","txt", "ppt", "pptx","log","pdf");
-            $temp = explode(".", $_FILES["path"]["name"]);
-            $extension = end($temp);//文件扩展名
-            if (in_array($extension, $allowedExts)){
-                if ($_FILES["path"]["error"] > 0){
-                    raise_message(2,"服务器文件上传错误",MESSAGE_LEVEL_ERROR);
-                }else{
-                    /**文件上传记录上传路径 */
-                    $ext = pathinfo($_FILES["path"]["name"],PATHINFO_EXTENSION);
-                    $now = time();
-                    $file_path_dest = "plugins/assets/upload/contract/" . $now . "." . $ext;
-                    move_uploaded_file($_FILES["path"]["tmp_name"], $config['base_path']  . '/' . $file_path_dest);
-                    $save["path"] = $file_path_dest;
-                }
-            }
-            else{
-                raise_message(2,"文件类型不支持",MESSAGE_LEVEL_ERROR);
-                header('Location: assets.php?action=contract_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
-                exit;
-            }
-        }
+        // if (isset($_FILES["path"]) && !empty($_FILES["path"]["name"])) {
+        //     $allowedExts = array("zip", "docx", "doc","xls", "xlsx", "rar","txt", "ppt", "pptx","log","pdf","jpg","png");
+        //     $temp = explode(".", $_FILES["path"]["name"]);
+        //     $extension = end($temp);//文件扩展名
+        //     if (in_array($extension, $allowedExts)){
+        //         if ($_FILES["path"]["error"] > 0){
+        //             raise_message(2,"服务器文件上传错误",MESSAGE_LEVEL_ERROR);
+        //         }else{
+        //             /**文件上传记录上传路径 */
+        //             $ext = pathinfo($_FILES["path"]["name"],PATHINFO_EXTENSION);
+        //             $now = time();
+        //             $file_path_dest = "plugins/assets/upload/contract/" . $now . "." . $ext;
+        //             move_uploaded_file($_FILES["path"]["tmp_name"], $config['base_path']  . '/' . $file_path_dest);
+        //             $save["path"] = $file_path_dest;
+        //         }
+        //     }
+        //     else{
+        //         raise_message(2,"文件类型不支持",MESSAGE_LEVEL_ERROR);
+        //         header('Location: assets.php?action=contract_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+        //         exit;
+        //     }
+        // }
         /**文件信息保存 */
         $id=sql_save($save, 'plugin_assets_contract');
         if ($id) {
@@ -418,8 +425,8 @@ function contract(){
         'status'    => array('display' => "合同状态", 'align' => 'left',  'sort' => 'ASC', 'tip' => "合同状态"),
 		'description'    => array('display' => "合同备注", 'align' => 'left',  'sort' => 'ASC', 'tip' => "合同备注"),
         'modified_name'    => array('display' => "操作人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "操作人"),
-        'last_modified' => array('display' => __('最后操作时间'), 'align' => 'left', 'sort' => 'ASC', 'tip' => "最操作时间"),
-		'path'    => array('display' => "附件", 'align' => 'left',  'sort' => 'ASC', 'tip' => "附件")
+        'last_modified' => array('display' => __('最后操作时间'), 'align' => 'left', 'sort' => 'ASC', 'tip' => "最操作时间")
+		// 'path'    => array('display' => "附件", 'align' => 'left',  'sort' => 'ASC', 'tip' => "附件")
     );
     html_header_sort_checkbox($display_text, get_request_var('sort_column'), get_request_var('sort_direction'), false,'assets.php?action=contract');
     if (cacti_sizeof($contract_list)) {
@@ -436,8 +443,8 @@ function contract(){
             form_selectable_cell($contract['description'],$contract['id'],'');
             form_selectable_cell(filter_value($contract['modified_name'], get_request_var('filter')),$contract['id'],'');
             form_selectable_cell(substr($contract['last_modified'],0,16), $contract['id'], '');
-			$download_html = (isset($contract['path']) ? '<a href="'. $config['url_path'] . $contract['path'] .'" download="' . $contract['name']. '">下载</a> ':'-');
-            form_selectable_cell($download_html , $contract['id']);
+			// $download_html = (isset($contract['path']) ? '<a href="'. $config['url_path'] . $contract['path'] .'" download="' . $contract['name']. '">下载</a> ':'-');
+            // form_selectable_cell($download_html , $contract['id']);
             form_checkbox_cell($contract['name'], $contract['id']);
         }
     } else {
@@ -448,5 +455,283 @@ function contract(){
         print $nav;
     }
     draw_actions_dropdown($contract_actions);
+    form_end();//分页form结束
+}
+
+//合同附件新增编辑页面
+function contract_accessory_edit(){
+    assets_tabs('contract');//合同管理选项卡
+    $contract_id=get_request_var('contract_id');
+    $contract= db_fetch_row_prepared('SELECT * FROM plugin_assets_contract WHERE id = ?', array($contract_id));
+    $data = array();//页面显示data
+    if (!isempty_request_var('id')) {
+        $data= db_fetch_row_prepared('SELECT * FROM plugin_assets_contract_accessory WHERE id = ?', array(get_request_var('id')));
+    }
+	$field_array = array(
+		'id' => array(
+			'friendly_name' => '合同附件id',
+			'method' => 'hidden',
+			'value' => isset_request_var('id') ? get_request_var('id'):0
+        ),
+        'contract_id' => array(
+			'friendly_name' => '合同id',
+			'method' => 'hidden',
+			'value' => isset_request_var('contract_id') ? get_request_var('contract_id'):0
+		),
+		'name' => array(
+			'friendly_name' => '合同附件名称',
+			'method' => 'textbox',
+			'max_length' => 50,
+			'description' =>'请正确填写合同附件名称',
+			'value' => (isset($data['name']) ? $data['name']:'')
+        ),
+		'path' => array(
+			'friendly_name' => '合同附件路径',
+            'method' => 'file',
+            'size' => '500',
+            'description' =>'请选择需要上传的文件'
+		),
+		'description' => array(
+			'friendly_name' => '合同附件描述',
+			'method' => 'textbox',
+			'max_length' => 100,
+			'description' =>'请正确填写合同附件描述',
+			'value' => (isset($data['description']) ? $data['description']:'')
+		)
+	);
+	form_start('assets.php', 'contract_accessory_edit',true);//合同附件编辑form开始
+	if (isset($data['id'])) {
+		html_start_box('[' . $contract['name'] . ']' . __('合同附件 [编辑: %s]', html_escape($data['name'])), '100%', true, '3', 'center', '');
+	} else {
+		html_start_box('[' . $contract['name'] . ']' . __('合同附件 [新增]'), '100%', true, '3', 'center', '');
+	}
+	draw_edit_form(
+		array(
+			'config' => array('no_form_tag' => true),
+			'fields' => $field_array
+		)
+    );
+	html_end_box(true, true);
+    ?>
+    <!-- 操作按钮 -->
+    <table style='width:100%;text-align:center;'>
+		<tr>
+			<td class='saveRow'>
+                <input type="hidden" name="action" value="contract_accessory_save">
+                <input type="button" class="" onclick="window.location.href='assets.php?action=contract';" value="返回" role="button">
+                <input type="submit" class="" id="submit" value="保存" role="button">
+			</td>
+		</tr>
+	</table>
+    <?php
+    form_end(false);//表单编辑结束
+}
+//合同附件信息修改操作
+function contract_accessory_save(){
+    global $config;
+    $save['id']           = get_filter_request_var('id');
+    $save['contract_id']           = get_filter_request_var('contract_id');
+    $save['name']         = form_input_validate(get_nfilter_request_var('name'), 'name', '', false, 3);
+    $save['description']     = form_input_validate(get_nfilter_request_var('description'), 'description', '', true, 3);
+    $save['last_modified'] = date('Y-m-d H:i:s', time());
+    $save['modified_by']   = $_SESSION['sess_user_id'];
+    if (is_error_message()) {
+        header('Location: assets.php?action=contract_accessory_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+		exit;
+	}else{
+        if (isset($_FILES["path"]) && !empty($_FILES["path"]["name"])) {
+            $allowedExts = array("zip", "docx", "doc","xls", "xlsx", "rar","txt", "ppt", "pptx","log","pdf","jpg","png");
+            $temp = explode(".", $_FILES["path"]["name"]);//临时文件路径
+            $extension = end($temp);//文件扩展名
+            if (in_array($extension, $allowedExts)){
+                if ($_FILES["path"]["error"] > 0){
+                    raise_message(2,"服务器文件上传错误",MESSAGE_LEVEL_ERROR);
+                }else{
+                    /**文件上传记录上传路径 */
+                    $ext = pathinfo($_FILES["path"]["name"],PATHINFO_EXTENSION);
+                    $now = time();
+                    $file_path_dest = "plugins/assets/upload/contract/" . $now . "." . $ext;
+                    move_uploaded_file($_FILES["path"]["tmp_name"], $config['base_path'] . '/' . $file_path_dest);
+                    $save["path"] = $file_path_dest;
+                }
+            }
+            else{
+                raise_message(2,"类型文件不支持",MESSAGE_LEVEL_ERROR);
+                header('Location: assets.php?action=contract_accessory_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+                exit;
+            }
+        }else{//新增时上传文件为空
+            if(!$save['id']){
+                raise_message(2,"请选择需要上传的文件",MESSAGE_LEVEL_ERROR);
+                header('Location: assets.php?action=contract_accessory_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+                exit;
+            }
+        }
+        /**文件信息保存 */
+        $id=sql_save($save, 'plugin_assets_contract_accessory');
+        if ($id) {
+            raise_message(1);
+            header('Location: assets.php?action=contract');
+            exit;
+        } else {
+            raise_message(2);
+            header('Location: assets.php?action=contract_accessory_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+            exit;
+        }
+    }
+}
+//合同附件记录页面
+function contract_accessory(){
+    global $config;
+    global $contract_accessory_actions,$item_rows;
+    $contract_id=get_request_var('contract_id');
+    $contract= db_fetch_row_prepared('SELECT * FROM plugin_assets_contract WHERE id = ?', array($contract_id));
+    $filters = array(
+        'rows' => array(
+            'filter' => FILTER_VALIDATE_INT,
+            'pageset' => true,
+            'default' => '-1'
+        ),
+        'page' => array(
+            'filter' => FILTER_VALIDATE_INT,
+            'default' => '1'
+        ),
+        'filter' => array(
+            'filter' => FILTER_CALLBACK,
+            'pageset' => true,
+            'default' => '',
+            'options' => array('options' => 'sanitize_search_string')
+        ),
+        'sort_column' => array(
+            'filter' => FILTER_CALLBACK,
+            'default' => 'id',
+            'options' => array('options' => 'sanitize_search_string')
+        ),
+        'sort_direction' => array(
+            'filter' => FILTER_CALLBACK,
+            'default' => 'ASC',
+            'options' => array('options' => 'sanitize_search_string')
+        )
+    );
+    validate_store_request_vars($filters, 'sess_contract_accessory');
+    if (get_request_var('rows') == -1) {
+        $rows = read_config_option('num_rows_table');
+    } else {
+        $rows = get_request_var('rows');
+    }
+    html_start_box(__('[合同附件记录: %s]', html_escape($contract['name'])), '100%', false, '3', 'center', '');
+    ?>
+    <tr class='even'>
+        <td>
+            <form id='form_contract_accessory' action='assets.php?action=contract_accessory&contract_id=' . $contract_id>
+                <input type="hidden" id="contract_id" value="<?php print $contract_id;?>">
+                <table class='filterTable'>
+                    <tr>
+                        <td>
+                            <?php print __('Search');?>
+                        </td>
+                        <td>
+                            <input type='text' class='ui-state-default ui-corner-all' id='filter' size='25' value='<?php print html_escape_request_var('filter');?>'>
+                        </td>
+                        <td>
+                            合同附件记录
+                        </td>
+                        <td>
+                            <select id='rows' onChange='applyFilter()'>
+                                <option value='-1'<?php print (get_request_var('rows') == '-1' ? ' selected>':'>') . __('Default');?></option>
+                                <?php
+                                if (cacti_sizeof($item_rows)) {
+                                    foreach ($item_rows as $key => $value) {
+                                        print "<option value='" . $key . "'"; if (get_request_var('rows') == $key) { print ' selected'; } print '>' . html_escape($value) . "</option>\n";
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </td>
+                        <td>
+						<span>
+							<input type='button' class='ui-button ui-corner-all ui-widget' id='refresh' value='<?php print __esc('Go');?>' title='<?php print __esc('Set/Refresh Filters');?>'>
+							<input type='button' class='ui-button ui-corner-all ui-widget' id='clear' value='<?php print __esc('Clear');?>' title='<?php print __esc('Clear Filters');?>'>
+						</span>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <script type='text/javascript'>
+                //查询操作函数
+                function applyFilter() {
+                    strURL  = 'assets.php?action=contract_accessory&header=false';
+                    strURL += '&contract_id='+$('#contract_id').val();
+                    strURL += '&filter='+$('#filter').val();
+                    strURL += '&rows='+$('#rows').val();
+                    loadPageNoHeader(strURL);
+                }
+                //重置查询函数
+                function clearFilter() {
+                    strURL = 'assets.php?action=contract_accessory&clear=1&header=false';
+                    strURL += '&contract_id='+$('#contract_id').val();
+                    loadPageNoHeader(strURL);
+                }
+                $(function() {
+                    $('#refresh').click(function() {
+                        applyFilter();
+                    });
+                    $('#clear').click(function() {
+                        clearFilter();
+                    });
+                    $('#form_contract_accessory').submit(function(event) {
+                        event.preventDefault();
+                        applyFilter();
+                    });
+                });
+            </script>
+        </td>
+    </tr>
+    <?php
+    html_end_box();
+    $sql_where=' AND assets_contract_accessory.contract_id='. $contract_id;
+    if (get_request_var('filter') != '') {
+        $sql_where =$sql_where . " AND (assets_contract_accessory.name LIKE '%" . get_request_var('filter') . "%' OR assets_contract_accessory.description like '%" . get_request_var('filter') . "%' OR user_auth.username like '%" . get_request_var('filter') . "%')";
+    } 
+    $total_rows = db_fetch_cell("SELECT count(*) FROM plugin_assets_contract_accessory AS assets_contract_accessory LEFT JOIN user_auth AS user_auth ON assets_contract_accessory.modified_by=user_auth.id WHERE 1=1 $sql_where");
+    $sql_order = get_order_string();
+    $sql_limit = ' LIMIT ' . ($rows*(get_request_var('page')-1)) . ',' . $rows;
+    $contract_accessory_list = db_fetch_assoc("SELECT assets_contract_accessory.*,user_auth.username AS modified_name FROM plugin_assets_contract_accessory AS assets_contract_accessory LEFT JOIN user_auth AS user_auth ON assets_contract_accessory.modified_by=user_auth.id WHERE 1=1 $sql_where $sql_order $sql_limit");
+    cacti_log("SELECT assets_contract_accessory.*,user_auth.username AS modified_name FROM plugin_assets_contract_accessory AS assets_contract_accessory LEFT JOIN user_auth AS user_auth ON assets_contract_accessory.modified_by=user_auth.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
+    $nav = html_nav_bar('assets.php?action=contract_accessory&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, "合同附件记录", 'page', 'main');
+    form_start('assets.php?action=contract_accessory&contract_id=' . $contract_id, 'chk');//分页表单开始
+    print $nav;
+    html_start_box('', '100%', '', '3', 'center', '');
+    $display_text = array(
+        'id'      => array('display' => 'ID',        'align' => 'left', 'sort' => 'ASC', 'tip' => "ID"),
+        'name'    => array('display' => "文档名称", 'align' => 'left',  'sort' => 'ASC', 'tip' => "文档名称"),
+        'description'    => array('display' => "文档描述", 'align' => 'left',  'sort' => 'ASC', 'tip' => "文档描述"),
+        'modified_name'    => array('display' => "上传人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "上传人"),
+        'last_modified' => array('display' => '上传时间', 'align' => 'left', 'sort' => 'ASC', 'tip' => "上传时间"),
+        'path'    => array('display' => "下载", 'align' => 'left',  'sort' => 'ASC', 'tip' => "下载")
+    );
+    html_header_sort_checkbox($display_text, get_request_var('sort_column'), get_request_var('sort_direction'), false,'assets.php?action=contract_accessory&contract_id=' . $contract_id);
+    if (cacti_sizeof($contract_accessory_list)) {
+        foreach ($contract_accessory_list as $contract_accessory) {
+            form_alternate_row('line' . $contract_accessory['id'], true);
+            form_selectable_cell($contract_accessory['id'], $contract_accessory['id'], '');
+            //form_selectable_cell(filter_value($contract_accessory['name'], get_request_var('filter'), 'assets.php?action=contract_accessory_edit&id=' . $contract_accessory['id'] . '&contract_id=' . $contract_accessory['contract_id']) , $contract_accessory['id']);
+            form_selectable_cell(filter_value($contract_accessory['name'], get_request_var('filter')),$contract_accessory['id'],'');
+            form_selectable_cell(filter_value($contract_accessory['description'], get_request_var('filter')),$contract_accessory['id'],'');
+            form_selectable_cell(filter_value($contract_accessory['modified_name'], get_request_var('filter')),$contract_accessory['id'],'');
+            form_selectable_cell(substr($contract_accessory['last_modified'],0,16), $contract_accessory['id'], '');
+            $download_html = (isset($contract_accessory['path']) ? '<a href="'. $config['url_path'] . $contract_accessory['path'] .'" download="' . $contract_accessory['name']. '">下载</a> ':'-');
+            form_selectable_cell($download_html , $contract_accessory['id']);
+            form_checkbox_cell($contract_accessory['name'], $contract_accessory['id']);
+            form_end_row();
+        }
+    } else {
+        print "<tr class='tableRow'><td colspan='" . (cacti_sizeof($display_text)+1) . "'><em>" . "没有数据" . "</em></td></tr>\n";
+    }
+    html_end_box(false);//与谁对应
+    if (cacti_sizeof($contract_accessory_list)) {
+        print $nav;
+    }
+    draw_actions_dropdown($contract_accessory_actions);
     form_end();//分页form结束
 }

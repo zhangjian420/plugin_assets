@@ -90,7 +90,7 @@ function documents_save(){
 		exit;
 	}else{
         if (isset($_FILES["path"]) && !empty($_FILES["path"]["name"])) {
-            $allowedExts = array("zip", "docx", "doc","xls", "xlsx", "rar","txt", "ppt", "pptx","log","pdf");
+            $allowedExts = array("zip", "docx", "doc","xls", "xlsx", "rar","txt", "ppt", "pptx","log","pdf","jpg","png");
             $temp = explode(".", $_FILES["path"]["name"]);//临时文件路径
             $extension = end($temp);//文件扩展名
             if (in_array($extension, $allowedExts)){
@@ -293,9 +293,9 @@ function documents(){
         'name'    => array('display' => "文档名称", 'align' => 'left',  'sort' => 'ASC', 'tip' => "文档名称"),
         'type_name'    => array('display' => "文档类型", 'align' => 'left',  'sort' => 'ASC', 'tip' => "文档类型"),
         'description'    => array('display' => "文档描述", 'align' => 'left',  'sort' => 'ASC', 'tip' => "文档描述"),
-        'modified_by'    => array('display' => "上传人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "上传人"),
+        'modified_name'    => array('display' => "上传人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "上传人"),
         'last_modified' => array('display' => __('上传时间'), 'align' => 'left', 'sort' => 'ASC', 'tip' => "上传时间"),
-        'path'    => array('display' => "文件", 'align' => 'left',  'sort' => 'ASC', 'tip' => "文件")
+        'path'    => array('display' => "下载", 'align' => 'left',  'sort' => 'ASC', 'tip' => "下载")
     );
     html_header_sort_checkbox($display_text, get_request_var('sort_column'), get_request_var('sort_direction'), false,'assets.php?action=documents');
     if (cacti_sizeof($documents_list)) {
