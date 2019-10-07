@@ -126,7 +126,7 @@ function documents_save(){
         } else {
             raise_message(2);
             header('Location: assets.php?action=documents_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
-             exit;
+            exit;
         }
     }
 }
@@ -283,7 +283,7 @@ function documents(){
     $sql_order = get_order_string();
     $sql_limit = ' LIMIT ' . ($rows*(get_request_var('page')-1)) . ',' . $rows;
     $documents_list = db_fetch_assoc("SELECT assets_documents.*,user_auth.username AS modified_name,assets_type.name AS type_name  FROM plugin_assets_documents AS assets_documents LEFT JOIN user_auth AS user_auth ON assets_documents.modified_by=user_auth.id LEFT JOIN plugin_assets_type AS assets_type ON assets_documents.type_id=assets_type.id WHERE 1=1 $sql_where $sql_order $sql_limit");
-    cacti_log("SELECT assets_documents.*,user_auth.username AS modified_name,assets_type.name AS type_name  FROM plugin_assets_documents AS assets_documents LEFT JOIN user_auth AS user_auth ON assets_documents.modified_by=user_auth.id LEFT JOIN plugin_assets_type AS assets_type ON assets_documents.type_id=assets_type.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
+    //cacti_log("SELECT assets_documents.*,user_auth.username AS modified_name,assets_type.name AS type_name  FROM plugin_assets_documents AS assets_documents LEFT JOIN user_auth AS user_auth ON assets_documents.modified_by=user_auth.id LEFT JOIN plugin_assets_type AS assets_type ON assets_documents.type_id=assets_type.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
     $nav = html_nav_bar('assets.php?action=documents&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, "文档", 'page', 'main');
     form_start('assets.php?action=documents', 'chk');//分页表单开始
     print $nav;

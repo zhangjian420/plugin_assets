@@ -144,7 +144,6 @@ function ipaddress_edit(){
          });
     })
     </script>
-
     <?php
     form_end(false);//表单编辑结束
 }
@@ -326,7 +325,7 @@ function ipaddress(){
     $sql_order = get_order_string();
     $sql_limit = ' LIMIT ' . ($rows*(get_request_var('page')-1)) . ',' . $rows;
     $ipaddress_list = db_fetch_assoc("SELECT assets_ipaddress.*,assets_ipaddress_group.name AS group_name,region_city.name AS city_name,region_area.name AS area_name FROM plugin_assets_ipaddress AS assets_ipaddress left join plugin_assets_ipaddress_group AS assets_ipaddress_group on assets_ipaddress.group_id=assets_ipaddress_group.id LEFT JOIN region as region_city on assets_ipaddress.city_id=region_city.code LEFT JOIN region as region_area on assets_ipaddress.area_id=region_area.code where 1=1 $sql_where $sql_order $sql_limit");
-    cacti_log("SELECT assets_ipaddress.*,assets_ipaddress_group.name AS group_name,region_city.name AS city_name,region_area.name AS area_name FROM plugin_assets_ipaddress AS assets_ipaddress left join plugin_assets_ipaddress_group AS assets_ipaddress_group on assets_ipaddress.group_id=assets_ipaddress_group.id LEFT JOIN region as region_city on assets_ipaddress.city_id=region_city.code LEFT JOIN region as region_area on assets_ipaddress.area_id=region_area.code where 1=1 " . $sql_where . $sql_order . $sql_limit);
+    //cacti_log("SELECT assets_ipaddress.*,assets_ipaddress_group.name AS group_name,region_city.name AS city_name,region_area.name AS area_name FROM plugin_assets_ipaddress AS assets_ipaddress left join plugin_assets_ipaddress_group AS assets_ipaddress_group on assets_ipaddress.group_id=assets_ipaddress_group.id LEFT JOIN region as region_city on assets_ipaddress.city_id=region_city.code LEFT JOIN region as region_area on assets_ipaddress.area_id=region_area.code where 1=1 " . $sql_where . $sql_order . $sql_limit);
     $nav = html_nav_bar('assets.php?action=ipaddress&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, "IP地址", 'page', 'main');
     form_start('assets.php?action=ipaddress', 'chk');//分页表单开始
     print $nav;

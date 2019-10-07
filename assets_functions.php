@@ -2,7 +2,6 @@
 //动态tab选显卡操作
 function assets_tabs($current_tab='documents') {
 	global $config;
-	/* present a tabbed interface */
 	$tabs = array(
 		'documents'    => __('文档管理', 'assets'),
 		'contract'=> __('合同管理', 'assets'),
@@ -28,7 +27,6 @@ function assets_tabs($current_tab='documents') {
 	}
 	print "</ul></nav></div>\n";
 }
-
 /**
  * 根据城市ID得到区域集合
  */

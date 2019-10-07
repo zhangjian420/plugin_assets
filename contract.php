@@ -2,16 +2,16 @@
 /**
  * 合同管理主函数
  */
+//合同操作集合
 $contract_actions = array(
     41 => __('删除'),
     42 => __('上传附件'),
     43 => __('下载附件')
 );
-
+//合同附件操作集合
 $contract_accessory_actions = array(
     44 => __('删除')
 );
-
 //合同新增编辑页面
 function contract_edit(){
     assets_tabs('contract');//合同管理选项卡
@@ -176,21 +176,21 @@ function contract_edit(){
 	</table>
 	<script>
 		$(document).ready(function(){
-				$("#signing_date").prop("readonly", true).datepicker({
-					changeMonth: false,
-					dateFormat: "yy-mm-dd",
-					onClose: function(selectedDate) {
+            $("#signing_date").prop("readonly", true).datepicker({
+                changeMonth: false,
+                dateFormat: "yy-mm-dd",
+                onClose: function(selectedDate) {
 
-					}
-				});
-				$("#due_date").prop("readonly", true).datepicker({
-					changeMonth: false,
-					dateFormat: "yy-mm-dd",
-					onClose: function(selectedDate) {
+                }
+            });
+            $("#due_date").prop("readonly", true).datepicker({
+                changeMonth: false,
+                dateFormat: "yy-mm-dd",
+                onClose: function(selectedDate) {
 
-					}
-				});
-                $("div[style='formRadio']").css({float:'left',display:'flex'});
+                }
+            });
+            $("div[style='formRadio']").css({float:'left',display:'flex'});
         });
 	</script>
     <?php
@@ -290,7 +290,6 @@ function contract(){
     );
     validate_store_request_vars($filters, 'sess_contract');//
     /* ================= input validation ================= */
-    /* if the number of rows is -1, set it to the default */
     if (get_request_var('rows') == -1) {
         $rows = read_config_option('num_rows_table');
     } else {
@@ -409,7 +408,7 @@ function contract(){
     $sql_order = get_order_string();
     $sql_limit = ' LIMIT ' . ($rows*(get_request_var('page')-1)) . ',' . $rows;
     $contract_list = db_fetch_assoc("SELECT assets_contract.*,user_auth.username AS modified_name,assets_type.name AS type_name  FROM plugin_assets_contract AS assets_contract LEFT JOIN user_auth AS user_auth ON assets_contract.modified_by=user_auth.id LEFT JOIN plugin_assets_type AS assets_type ON assets_contract.type_id=assets_type.id WHERE 1=1 $sql_where $sql_order $sql_limit");
-    cacti_log("SELECT assets_contract.*,user_auth.username AS modified_name,assets_type.name AS type_name  FROM plugin_assets_contract AS assets_contract LEFT JOIN user_auth AS user_auth ON assets_contract.modified_by=user_auth.id LEFT JOIN plugin_assets_type AS assets_type ON assets_contract.type_id=assets_type.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
+    //cacti_log("SELECT assets_contract.*,user_auth.username AS modified_name,assets_type.name AS type_name  FROM plugin_assets_contract AS assets_contract LEFT JOIN user_auth AS user_auth ON assets_contract.modified_by=user_auth.id LEFT JOIN plugin_assets_type AS assets_type ON assets_contract.type_id=assets_type.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
     $nav = html_nav_bar('assets.php?action=contract&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, "合同", 'page', 'main');
     form_start('assets.php?action=contract', 'chk');//分页表单开始
     print $nav;
@@ -457,7 +456,6 @@ function contract(){
     draw_actions_dropdown($contract_actions);
     form_end();//分页form结束
 }
-
 //合同附件新增编辑页面
 function contract_accessory_edit(){
     assets_tabs('contract');//合同管理选项卡
@@ -697,7 +695,7 @@ function contract_accessory(){
     $sql_order = get_order_string();
     $sql_limit = ' LIMIT ' . ($rows*(get_request_var('page')-1)) . ',' . $rows;
     $contract_accessory_list = db_fetch_assoc("SELECT assets_contract_accessory.*,user_auth.username AS modified_name FROM plugin_assets_contract_accessory AS assets_contract_accessory LEFT JOIN user_auth AS user_auth ON assets_contract_accessory.modified_by=user_auth.id WHERE 1=1 $sql_where $sql_order $sql_limit");
-    cacti_log("SELECT assets_contract_accessory.*,user_auth.username AS modified_name FROM plugin_assets_contract_accessory AS assets_contract_accessory LEFT JOIN user_auth AS user_auth ON assets_contract_accessory.modified_by=user_auth.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
+    //cacti_log("SELECT assets_contract_accessory.*,user_auth.username AS modified_name FROM plugin_assets_contract_accessory AS assets_contract_accessory LEFT JOIN user_auth AS user_auth ON assets_contract_accessory.modified_by=user_auth.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
     $nav = html_nav_bar('assets.php?action=contract_accessory&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, "合同附件记录", 'page', 'main');
     form_start('assets.php?action=contract_accessory&contract_id=' . $contract_id, 'chk');//分页表单开始
     print $nav;

@@ -123,7 +123,7 @@ function equipment(){
     $sql_order = get_order_string();
     $sql_limit = ' LIMIT ' . ($rows*(get_request_var('page')-1)) . ',' . $rows;
     $equipment_list = db_fetch_assoc("SELECT * FROM plugin_assets_equipment WHERE 1=1 $sql_where $sql_order $sql_limit");
-    cacti_log("SELECT * FROM plugin_assets_equipment WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
+    //cacti_log("SELECT * FROM plugin_assets_equipment WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
     $nav = html_nav_bar('assets.php?action=equipment&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, "设备", 'page', 'main');
     form_start('assets.php?action=equipment', 'chk');//分页表单开始
     print $nav;
@@ -634,7 +634,7 @@ function equipment_almacenar(){
     $sql_order = get_order_string();
     $sql_limit = ' LIMIT ' . ($rows*(get_request_var('page')-1)) . ',' . $rows;
     $equipment_almacenar_list = db_fetch_assoc("SELECT assets_equipment_almacenar.*,user_auth.username AS modified_name FROM plugin_assets_equipment_almacenar AS assets_equipment_almacenar LEFT JOIN user_auth AS user_auth ON assets_equipment_almacenar.modified_by=user_auth.id WHERE 1=1 $sql_where $sql_order $sql_limit");
-    cacti_log("SELECT assets_equipment_almacenar.*,user_auth.username AS modified_name FROM plugin_assets_equipment_almacenar AS assets_equipment_almacenar LEFT JOIN user_auth AS user_auth ON assets_equipment_almacenar.modified_by=user_auth.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
+    //cacti_log("SELECT assets_equipment_almacenar.*,user_auth.username AS modified_name FROM plugin_assets_equipment_almacenar AS assets_equipment_almacenar LEFT JOIN user_auth AS user_auth ON assets_equipment_almacenar.modified_by=user_auth.id WHERE 1=1 " . $sql_where . $sql_order . $sql_limit);
     $nav = html_nav_bar('assets.php?action=equipment_almacenar&filter=' . get_request_var('filter'), MAX_DISPLAY_PAGES, get_request_var('page'), $rows, $total_rows, 5, "出入库记录", 'page', 'main');
     form_start('assets.php?action=equipment_almacenar', 'chk');//分页表单开始
     print $nav;
