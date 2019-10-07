@@ -185,11 +185,11 @@ function form_actions() {
 		if (isset($documents_id_list) && cacti_sizeof($documents_id_list)) {
 			if (get_nfilter_request_var('drp_action') == '11') { /* delete */
 				print "<tr>
-					<td class='textArea' class='odd'>
-						<p>点击'继续'删除以下文档</p>
-						<div class='itemlist'><ul>$documents_html</ul></div>
-					</td>
-				</tr>\n";
+							<td class='textArea' class='odd'>
+								<p>点击'继续'删除以下文档</p>
+								<div class='itemlist'><ul>$documents_html</ul></div>
+							</td>
+						</tr>\n";
 				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除文档'>";
 			}
 		} else {
@@ -248,11 +248,11 @@ function form_actions() {
 		if (isset($contract_id_list) && cacti_sizeof($contract_id_list)) {
 			if (get_nfilter_request_var('drp_action') == '41') { /* delete */
 				print "<tr>
-					<td class='textArea' class='odd'>
-						<p>点击'继续'删除以下合同</p>
-						<div class='itemlist'><ul>$contract_html</ul></div>
-					</td>
-				</tr>\n";
+							<td class='textArea' class='odd'>
+								<p>点击'继续'删除以下合同</p>
+								<div class='itemlist'><ul>$contract_html</ul></div>
+							</td>
+						</tr>\n";
 				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除合同'>";
 			}
 		} else {
@@ -310,11 +310,11 @@ function form_actions() {
 		if (isset($contract_accessory_id_list) && cacti_sizeof($contract_accessory_id_list)) {
 			if (get_nfilter_request_var('drp_action') == '44') { /* delete */
 				print "<tr>
-					<td class='textArea' class='odd'>
-						<p>点击'继续'删除以下合同附件</p>
-						<div class='itemlist'><ul>$contract_accessory_html</ul></div>
-					</td>
-				</tr>\n";
+							<td class='textArea' class='odd'>
+								<p>点击'继续'删除以下合同附件</p>
+								<div class='itemlist'><ul>$contract_accessory_html</ul></div>
+							</td>
+						</tr>\n";
 				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick=\"window.location.href='assets.php?action=contract_accessory&contract_id=" . $contract_id . "&header=true';\">&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除合同附件'>";
 			}
 		} else {
@@ -411,11 +411,11 @@ function form_actions() {
 		if (isset($ipaddress_group_id_list) && cacti_sizeof($ipaddress_group_id_list)) {
 			if (get_nfilter_request_var('drp_action') == '51') { /* delete */
 				print "<tr>
-					<td class='textArea' class='odd'>
-						<p>点击'继续'删除以下IP地址组</p>
-						<div class='itemlist'><ul>$ipaddress_group_html</ul></div>
-					</td>
-				</tr>\n";
+							<td class='textArea' class='odd'>
+								<p>点击'继续'删除以下IP地址组</p>
+								<div class='itemlist'><ul>$ipaddress_group_html</ul></div>
+							</td>
+						</tr>\n";
 				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除IP地址组'>";
 			}
 		} else {
@@ -473,11 +473,11 @@ function form_actions() {
 		if (isset($ipaddress_id_list) && cacti_sizeof($ipaddress_id_list)) {
 			if (get_nfilter_request_var('drp_action') == '31') { /* delete */
 				print "<tr>
-					<td class='textArea' class='odd'>
-						<p>点击'继续'删除以下IP地址段</p>
-						<div class='itemlist'><ul>$ipaddress_html</ul></div>
-					</td>
-				</tr>\n";
+							<td class='textArea' class='odd'>
+								<p>点击'继续'删除以下IP地址段</p>
+								<div class='itemlist'><ul>$ipaddress_html</ul></div>
+							</td>
+						</tr>\n";
 				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除IP地址段'>";
 			}
 		} else {
@@ -543,11 +543,11 @@ function form_actions() {
 		if (isset($ipaddress_id_list) && cacti_sizeof($ipaddress_id_list)) {
 			if (strpos(get_nfilter_request_var('drp_action'),"group_") > 0) { /* delete */
 				print "<tr>
-					<td class='textArea' class='odd'>
-						<p>点击'继续'分组以下IP地址</p>
-						<div class='itemlist'><ul>$ipaddress_html</ul></div>
-					</td>
-				</tr>\n";
+							<td class='textArea' class='odd'>
+								<p>点击'继续'分组以下IP地址</p>
+								<div class='itemlist'><ul>$ipaddress_html</ul></div>
+							</td>
+						</tr>\n";
 				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除IP地址'>";
 			}
 		} else {
@@ -607,11 +607,11 @@ function form_actions() {
 		if (isset($equipment_id_list) && cacti_sizeof($equipment_id_list)) {
 			if (get_nfilter_request_var('drp_action') == '24') { /* delete */
 				print "<tr>
-					<td class='textArea' class='odd'>
-						<p>点击'继续'删除以下设备</p>
-						<div class='itemlist'><ul>$equipment_html</ul></div>
-					</td>
-				</tr>\n";
+							<td class='textArea' class='odd'>
+								<p>点击'继续'删除以下设备</p>
+								<div class='itemlist'><ul>$equipment_html</ul></div>
+							</td>
+						</tr>\n";
 				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除设备'>";
 			}
 		} else {
@@ -714,11 +714,11 @@ function form_actions() {
 		if (isset($type_id_list) && cacti_sizeof($type_id_list)) {
 			if (get_nfilter_request_var('drp_action') == '61') { /* delete */
 				print "<tr>
-					<td class='textArea' class='odd'>
-						<p>点击'继续'删除以下类型</p>
-						<div class='itemlist'><ul>$type_html</ul></div>
-					</td>
-				</tr>\n";
+							<td class='textArea' class='odd'>
+								<p>点击'继续'删除以下类型</p>
+								<div class='itemlist'><ul>$type_html</ul></div>
+							</td>
+						</tr>\n";
 				$save_html = "<input type='button' class='ui-button ui-corner-all ui-widget' value='" . __esc('Cancel') . "' onClick='cactiReturnTo()'>&nbsp;<input type='submit' class='ui-button ui-corner-all ui-widget' value='" . __esc('Continue') . "' title='删除类型'>";
 			}
 		} else {
