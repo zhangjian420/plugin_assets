@@ -152,6 +152,7 @@ function ipaddress_save(){
     global $config;
     $save['id']           = get_filter_request_var('id');
     $save['ip_range']         = form_input_validate(get_nfilter_request_var('ip_range'), 'ip_range', '', false, 3);
+    $save['ips']=getIps($save['ip_range']);
     $save['group_id']     = form_input_validate(get_nfilter_request_var('group_id'), 'group_id', '', true, 3);
     $save['use_name']     = form_input_validate(get_nfilter_request_var('use_name'), 'use_name', '', true, 3);
     $save['city_id']     = form_input_validate(get_nfilter_request_var('city_id'), 'city_id', '', true, 3);
@@ -161,7 +162,6 @@ function ipaddress_save(){
     $save['description']     = form_input_validate(get_nfilter_request_var('description'), 'description', '', true, 3);
     $save['last_modified'] = date('Y-m-d H:i:s', time());
     $save['modified_by']   = $_SESSION['sess_user_id'];
-    $save['ips']=getIps($save['ip_range']);
     if (is_error_message()) {
         header('Location: assets.php?action=ipaddress_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
 		exit;
@@ -371,45 +371,4 @@ function ipaddress(){
     }
     draw_actions_dropdown($ipaddress_actions);
     form_end();//分页form结束
-}
-/**
- * 参数192.168.1.0/24;192.168.2.0/24
- * 根据多个IP地址段得到具体IP字符串
- * 返回结果192.168.1.0,192.168.1.1
- */
-function getIps($ip_range_string){
-   $ip_range_array= explode(";", $ip_range_string);
-   $ip_array=array();
-   foreach ($ip_range_array as $ip_range) {
-        $ip_array=array_merge($ip_array,ip_range_parse($ip_range));//合并数组
-   }
-   return implode(";",$ip_array);
-}
-/**
- * 参数192.168.1.0/24
- * 根据单个个IP地址段得到具体IP字符串
- * 返回结果[192.168.1.0,192.168.1.1]
- */
-function ip_range_parse($ip_range) {
-	$mark_len = 32;
-	if (strpos($ip_range, "/") > 0) {
-	 list($ip_range, $mark_len) = explode("/", $ip_range);
-	}
-	$ip = ip2long($ip_range);
-	$mark = 0xFFFFFFFF << (32 - $mark_len) & 0xFFFFFFFF;
-	$ip_start = $ip & $mark;
-    $ip_end = $ip | (~$mark) & 0xFFFFFFFF;
-    $ip_start=long2ip($ip_start);
-    $ip_end=long2ip($ip_end);
-    $ip_start_array=explode('.',$ip_start);
-    $ip_end_array=explode('.',$ip_end);
-    $ip_generate_array=$ip_start_array;
-    $ip_array=array();
-    if(cacti_sizeof($ip_start_array)==4){
-        for ($index=$ip_start_array[3]; $index<=$ip_end_array[3]; $index++) {
-            $ip_generate_array[3]=$index;
-            array_push($ip_array,implode(".",$ip_generate_array));
-        }
-    }
-    return $ip_array;
 }

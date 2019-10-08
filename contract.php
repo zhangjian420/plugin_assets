@@ -477,10 +477,10 @@ function contract_accessory_edit(){
 			'value' => isset_request_var('contract_id') ? get_request_var('contract_id'):0
 		),
 		'name' => array(
-			'friendly_name' => '合同附件名称',
+			'friendly_name' => '合同附件名称(非必填项默认为附件的名称)',
 			'method' => 'textbox',
 			'max_length' => 50,
-			'description' =>'请正确填写合同附件名称',
+			'description' =>'请正确填写合同附件名称,非必填项默认为附件的名称',
 			'value' => (isset($data['name']) ? $data['name']:'')
         ),
 		'path' => array(
@@ -529,7 +529,7 @@ function contract_accessory_save(){
     global $config;
     $save['id']           = get_filter_request_var('id');
     $save['contract_id']           = get_filter_request_var('contract_id');
-    $save['name']         = form_input_validate(get_nfilter_request_var('name'), 'name', '', false, 3);
+    $save['name']         = form_input_validate(get_nfilter_request_var('name'), 'name', '', true, 3);
     $save['description']     = form_input_validate(get_nfilter_request_var('description'), 'description', '', true, 3);
     $save['last_modified'] = date('Y-m-d H:i:s', time());
     $save['modified_by']   = $_SESSION['sess_user_id'];
@@ -551,6 +551,9 @@ function contract_accessory_save(){
                     $file_path_dest = "plugins/assets/upload/contract/" . $now . "." . $ext;
                     move_uploaded_file($_FILES["path"]["tmp_name"], $config['base_path'] . '/' . $file_path_dest);
                     $save["path"] = $file_path_dest;
+                    if($save['name']==''){
+                        $save["name"] = $temp[count($temp)-2];
+                    }
                 }
             }
             else{

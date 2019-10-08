@@ -77,6 +77,7 @@ function ipaddress_group_save(){
     $save['id']           = get_filter_request_var('id');
     $save['name']         = form_input_validate(get_nfilter_request_var('name'), 'name', '', false, 3);
     $save['ip_range']         = form_input_validate(get_nfilter_request_var('ip_range'), 'ip_range', '', false, 3);
+    $save['ips']=getIps($save['ip_range']);
     $save['description']     = form_input_validate(get_nfilter_request_var('description'), 'description', '', true, 3);
     $save['last_modified'] = date('Y-m-d H:i:s', time());
     $save['modified_by']   = $_SESSION['sess_user_id'];
@@ -206,7 +207,7 @@ function ipaddress_group(){
     /* form the 'where' clause for our main sql query */
     $sql_where='';
     if (get_request_var('filter') != '') {
-        $sql_where =$sql_where . " AND (name LIKE '%" . get_request_var('filter') . "%' OR ip_range like '%" . get_request_var('filter') . "%' OR description like '%" . get_request_var('filter') . "%')";
+        $sql_where =$sql_where . " AND (name LIKE '%" . get_request_var('filter') . "%' OR ip_range like '%" . get_request_var('filter') . "%' OR ips like '%" . get_request_var('filter') . "%' OR description like '%" . get_request_var('filter') . "%')";
     } 
     $total_rows = db_fetch_cell("SELECT COUNT(*) FROM plugin_assets_ipaddress_group WHERE 1=1 $sql_where");
     $sql_order = get_order_string();
