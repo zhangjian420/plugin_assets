@@ -463,10 +463,10 @@ function equipment_almacenar_edit(){
         );
         $field_array['operation_date']=$operation_date;
         $operation_person=array(
-            'friendly_name' => '借出人',
+            'friendly_name' => '出库人',
             'method' => 'textbox',
             'max_length' => 32,
-            'description' =>'请正确填写借出人',
+            'description' =>'请正确填写出库人',
             'value' => ''
         );
         $field_array['operation_person']=$operation_person;
