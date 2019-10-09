@@ -396,7 +396,10 @@ function contract(){
     /* form the 'where' clause for our main sql query */
     $sql_where='';
     if (get_request_var('filter') != '') {
-        $sql_where =$sql_where . " AND (assets_contract.name LIKE '%" . get_request_var('filter') . "%' OR assets_contract.number like '%" . get_request_var('filter') . "%' OR assets_contract.company like '%" . get_request_var('filter') . "%' OR user_auth.username like '%" . get_request_var('filter') . "%')";
+        $sql_where =$sql_where . " AND (assets_contract.name LIKE '%" . get_request_var('filter') 
+        . "%' OR assets_contract.number like '%" . get_request_var('filter') . "%' OR assets_contract.company like '%" 
+        . get_request_var('filter') . "%' OR user_auth.username like '%" . get_request_var('filter') 
+        . "%' or assets_contract.content_text like '%".get_request_var('filter')."%')";
     } 
     if (get_request_var('type_id') != ''&&get_request_var('type_id') != '-1') {
         $sql_where =$sql_where . " AND assets_contract.type_id=" . get_request_var('type_id');
