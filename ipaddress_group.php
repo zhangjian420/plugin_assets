@@ -207,7 +207,7 @@ function ipaddress_group(){
     /* form the 'where' clause for our main sql query */
     $sql_where='';
     if (get_request_var('filter') != '') {
-        $sql_where =$sql_where . " AND (name LIKE '%" . get_request_var('filter') . "%' OR ip_range like '%" . get_request_var('filter') . "%' OR ips like '%" . get_request_var('filter') . "%' OR description like '%" . get_request_var('filter') . "%')";
+        $sql_where =$sql_where . " AND (name LIKE '%" . get_request_var('filter') . "%' OR ip_range like '%" . get_request_var('filter') . "%' OR description like '%" . get_request_var('filter') . "%')";
     } 
     $total_rows = db_fetch_cell("SELECT COUNT(*) FROM plugin_assets_ipaddress_group WHERE 1=1 $sql_where");
     $sql_order = get_order_string();

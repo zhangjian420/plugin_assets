@@ -78,7 +78,7 @@ function contract_edit(){
             'class' => 'contentText',
             'value' => (isset($data['content_text']) ? $data['content_text']:''),
 		),
-		// 'path' => array(
+		// 'file_path' => array(
 		// 	'friendly_name' => '合同附件',
         //     'method' => 'file',
         //     'size' => '500',
@@ -221,20 +221,20 @@ function contract_save(){
         header('Location: assets.php?action=contract_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
 		exit;
 	}else{
-        // if (isset($_FILES["path"]) && !empty($_FILES["path"]["name"])) {
+        // if (isset($_FILES["file_path"]) && !empty($_FILES["file_path"]["name"])) {
         //     $allowedExts = array("zip", "docx", "doc","xls", "xlsx", "rar","txt", "ppt", "pptx","log","pdf","jpg","png");
-        //     $temp = explode(".", $_FILES["path"]["name"]);
+        //     $temp = explode(".", $_FILES["file_path"]["name"]);
         //     $extension = end($temp);//文件扩展名
         //     if (in_array($extension, $allowedExts)){
-        //         if ($_FILES["path"]["error"] > 0){
+        //         if ($_FILES["file_path"]["error"] > 0){
         //             raise_message(2,"服务器文件上传错误",MESSAGE_LEVEL_ERROR);
         //         }else{
         //             /**文件上传记录上传路径 */
-        //             $ext = pathinfo($_FILES["path"]["name"],PATHINFO_EXTENSION);
+        //             $ext = pathinfo($_FILES["file_path"]["name"],PATHINFO_EXTENSION);
         //             $now = time();
         //             $file_path_dest = "plugins/assets/upload/contract/" . $now . "." . $ext;
-        //             move_uploaded_file($_FILES["path"]["tmp_name"], $config['base_path']  . '/' . $file_path_dest);
-        //             $save["path"] = $file_path_dest;
+        //             move_uploaded_file($_FILES["file_path"]["tmp_name"], $config['base_path']  . '/' . $file_path_dest);
+        //             $save["file_path"] = $file_path_dest;
         //         }
         //     }
         //     else{
@@ -425,7 +425,7 @@ function contract(){
 		'description'    => array('display' => "合同备注", 'align' => 'left',  'sort' => 'ASC', 'tip' => "合同备注"),
         'modified_name'    => array('display' => "操作人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "操作人"),
         'last_modified' => array('display' => __('最后操作时间'), 'align' => 'left', 'sort' => 'ASC', 'tip' => "最操作时间")
-		// 'path'    => array('display' => "附件", 'align' => 'left',  'sort' => 'ASC', 'tip' => "附件")
+		// 'file_path'    => array('display' => "附件", 'align' => 'left',  'sort' => 'ASC', 'tip' => "附件")
     );
     html_header_sort_checkbox($display_text, get_request_var('sort_column'), get_request_var('sort_direction'), false,'assets.php?action=contract');
     if (cacti_sizeof($contract_list)) {
@@ -442,7 +442,7 @@ function contract(){
             form_selectable_cell($contract['description'],$contract['id'],'');
             form_selectable_cell(filter_value($contract['modified_name'], get_request_var('filter')),$contract['id'],'');
             form_selectable_cell(substr($contract['last_modified'],0,16), $contract['id'], '');
-			// $download_html = (isset($contract['path']) ? '<a href="'. $config['url_path'] . $contract['path'] .'" download="' . $contract['name']. '">下载</a> ':'-');
+			// $download_html = (isset($contract['file_path']) ? '<a href="'. $config['url_path'] . $contract['file_path'] .'" download="' . $contract['file_name']. '">下载</a> ':'-');
             // form_selectable_cell($download_html , $contract['id']);
             form_checkbox_cell($contract['name'], $contract['id']);
         }
@@ -483,7 +483,7 @@ function contract_accessory_edit(){
 			'description' =>'请正确填写合同附件名称,非必填项默认为附件的名称',
 			'value' => (isset($data['name']) ? $data['name']:'')
         ),
-		'path' => array(
+		'file_path' => array(
 			'friendly_name' => '合同附件路径',
             'method' => 'file',
             'size' => '500',
@@ -537,47 +537,49 @@ function contract_accessory_save(){
         header('Location: assets.php?action=contract_accessory_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
 		exit;
 	}else{
-        if (isset($_FILES["path"]) && !empty($_FILES["path"]["name"])) {
+        if (isset($_FILES["file_path"]) && !empty($_FILES["file_path"]["name"])) {
             $allowedExts = array("zip", "docx", "doc","xls", "xlsx", "rar","txt", "ppt", "pptx","log","pdf","jpg","png");
-            $temp = explode(".", $_FILES["path"]["name"]);//临时文件路径
+            $temp = explode(".", $_FILES["file_path"]["name"]);//临时文件路径
             $extension = end($temp);//文件扩展名
             if (in_array($extension, $allowedExts)){
-                if ($_FILES["path"]["error"] > 0){
+                if ($_FILES["file_path"]["error"] > 0){
                     raise_message(2,"服务器文件上传错误",MESSAGE_LEVEL_ERROR);
                 }else{
                     /**文件上传记录上传路径 */
-                    $ext = pathinfo($_FILES["path"]["name"],PATHINFO_EXTENSION);
+                    $ext = pathinfo($_FILES["file_path"]["name"],PATHINFO_EXTENSION);
                     $now = time();
                     $file_path_dest = "plugins/assets/upload/contract/" . $now . "." . $ext;
-                    move_uploaded_file($_FILES["path"]["tmp_name"], $config['base_path'] . '/' . $file_path_dest);
-                    $save["path"] = $file_path_dest;
+                    move_uploaded_file($_FILES["file_path"]["tmp_name"], $config['base_path'] . '/' . $file_path_dest);
+                    $save["file_name"] = $temp[count($temp)-2];
+                    $save["file_path"] = $file_path_dest;
                     if($save['name']==''){
                         $save["name"] = $temp[count($temp)-2];
+                    }
+                    /**文件信息保存 */
+                    $id=sql_save($save, 'plugin_assets_contract_accessory');
+                    if ($id) {
+                        raise_message(1);
+                        //header('Location: assets.php?action=contract');
+                        header('Location: assets.php?action=contract_accessory&contract_id=' . get_filter_request_var('contract_id') . '&header=true');
+                        exit;
+                    } else {
+                        raise_message(2);
+                        header('Location: assets.php?action=contract_accessory_edit&contract_id=' .get_filter_request_var('contract_id'). '&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+                        exit;
                     }
                 }
             }
             else{
                 raise_message(2,"类型文件不支持",MESSAGE_LEVEL_ERROR);
-                header('Location: assets.php?action=contract_accessory_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+                header('Location: assets.php?action=contract_accessory_edit&contract_id=' .get_filter_request_var('contract_id'). '&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
                 exit;
             }
         }else{//新增时上传文件为空
             if(!$save['id']){
                 raise_message(2,"请选择需要上传的文件",MESSAGE_LEVEL_ERROR);
-                header('Location: assets.php?action=contract_accessory_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+                header('Location: assets.php?action=contract_accessory_edit&contract_id=' .get_filter_request_var('contract_id'). '&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
                 exit;
             }
-        }
-        /**文件信息保存 */
-        $id=sql_save($save, 'plugin_assets_contract_accessory');
-        if ($id) {
-            raise_message(1);
-            header('Location: assets.php?action=contract');
-            exit;
-        } else {
-            raise_message(2);
-            header('Location: assets.php?action=contract_accessory_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
-            exit;
         }
     }
 }
@@ -620,7 +622,7 @@ function contract_accessory(){
     } else {
         $rows = get_request_var('rows');
     }
-    html_start_box(__('[合同附件记录: %s]', html_escape($contract['name'])), '100%', false, '3', 'center', '');
+    html_start_box(__('[合同附件记录: %s]', html_escape($contract['name'])), '100%', false, '3', 'center', 'assets.php?action=contract_accessory_edit&contract_id=' . $contract_id);
     ?>
     <tr class='even'>
         <td>
@@ -709,7 +711,7 @@ function contract_accessory(){
         'description'    => array('display' => "文档描述", 'align' => 'left',  'sort' => 'ASC', 'tip' => "文档描述"),
         'modified_name'    => array('display' => "上传人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "上传人"),
         'last_modified' => array('display' => '上传时间', 'align' => 'left', 'sort' => 'ASC', 'tip' => "上传时间"),
-        'path'    => array('display' => "下载", 'align' => 'left',  'sort' => 'ASC', 'tip' => "下载")
+        'file_path'    => array('display' => "下载", 'align' => 'left',  'sort' => 'ASC', 'tip' => "下载")
     );
     html_header_sort_checkbox($display_text, get_request_var('sort_column'), get_request_var('sort_direction'), false,'assets.php?action=contract_accessory&contract_id=' . $contract_id);
     if (cacti_sizeof($contract_accessory_list)) {
@@ -721,7 +723,7 @@ function contract_accessory(){
             form_selectable_cell(filter_value($contract_accessory['description'], get_request_var('filter')),$contract_accessory['id'],'');
             form_selectable_cell(filter_value($contract_accessory['modified_name'], get_request_var('filter')),$contract_accessory['id'],'');
             form_selectable_cell(substr($contract_accessory['last_modified'],0,16), $contract_accessory['id'], '');
-            $download_html = (isset($contract_accessory['path']) ? '<a href="'. $config['url_path'] . $contract_accessory['path'] .'" download="' . $contract_accessory['name']. '">下载</a> ':'-');
+            $download_html = (isset($contract_accessory['file_path']) ? '<a href="'. $config['url_path'] . $contract_accessory['file_path'] .'" download="' . $contract_accessory['file_name']. '">下载</a> ':'-');
             form_selectable_cell($download_html , $contract_accessory['id']);
             form_checkbox_cell($contract_accessory['name'], $contract_accessory['id']);
             form_end_row();

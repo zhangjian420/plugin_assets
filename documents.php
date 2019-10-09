@@ -35,7 +35,7 @@ function documents_edit(){
 			'default' => '0',
 			'sql' => "SELECT id, name FROM plugin_assets_type WHERE type='文档管理' ORDER BY id"
 		),
-		'path' => array(
+		'file_path' => array(
 			'friendly_name' => '文档路径',
             'method' => 'file',
             'size' => '500',
@@ -89,20 +89,32 @@ function documents_save(){
         header('Location: assets.php?action=documents_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
 		exit;
 	}else{
-        if (isset($_FILES["path"]) && !empty($_FILES["path"]["name"])) {
+        if (isset($_FILES["file_path"]) && !empty($_FILES["file_path"]["name"])) {
             $allowedExts = array("zip", "docx", "doc","xls", "xlsx", "rar","txt", "ppt", "pptx","log","pdf","jpg","png");
-            $temp = explode(".", $_FILES["path"]["name"]);//临时文件路径
+            $temp = explode(".", $_FILES["file_path"]["name"]);//临时文件路径
             $extension = end($temp);//文件扩展名
             if (in_array($extension, $allowedExts)){
-                if ($_FILES["path"]["error"] > 0){
+                if ($_FILES["file_path"]["error"] > 0){
                     raise_message(2,"服务器文件上传错误",MESSAGE_LEVEL_ERROR);
                 }else{
                     /**文件上传记录上传路径 */
-                    $ext = pathinfo($_FILES["path"]["name"],PATHINFO_EXTENSION);
+                    $ext = pathinfo($_FILES["file_path"]["name"],PATHINFO_EXTENSION);
                     $now = time();
                     $file_path_dest = "plugins/assets/upload/documents/" . $now . "." . $ext;
-                    move_uploaded_file($_FILES["path"]["tmp_name"], $config['base_path'] . '/' . $file_path_dest);
-                    $save["path"] = $file_path_dest;
+                    move_uploaded_file($_FILES["file_path"]["tmp_name"], $config['base_path'] . '/' . $file_path_dest);
+                    $save["file_name"] = $temp[count($temp)-2];
+                    $save["file_path"] = $file_path_dest;
+                    /**文件信息保存 */
+                    $id=sql_save($save, 'plugin_assets_documents');
+                    if ($id) {
+                        raise_message(1);
+                        header('Location: assets.php?action=documents');
+                        exit;
+                    } else {
+                        raise_message(2);
+                        header('Location: assets.php?action=documents_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
+                        exit;
+                    }
                 }
             }
             else{
@@ -116,17 +128,6 @@ function documents_save(){
                 header('Location: assets.php?action=documents_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
                 exit;
             }
-        }
-        /**文件信息保存 */
-        $id=sql_save($save, 'plugin_assets_documents');
-        if ($id) {
-            raise_message(1);
-            header('Location: assets.php?action=documents');
-            exit;
-        } else {
-            raise_message(2);
-            header('Location: assets.php?action=documents_edit&id=' . (empty($id) ? get_nfilter_request_var('id') : $id));
-            exit;
         }
     }
 }
@@ -295,7 +296,7 @@ function documents(){
         'description'    => array('display' => "文档描述", 'align' => 'left',  'sort' => 'ASC', 'tip' => "文档描述"),
         'modified_name'    => array('display' => "上传人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "上传人"),
         'last_modified' => array('display' => __('上传时间'), 'align' => 'left', 'sort' => 'ASC', 'tip' => "上传时间"),
-        'path'    => array('display' => "下载", 'align' => 'left',  'sort' => 'ASC', 'tip' => "下载")
+        'file_path'    => array('display' => "下载", 'align' => 'left',  'sort' => 'ASC', 'tip' => "下载")
     );
     html_header_sort_checkbox($display_text, get_request_var('sort_column'), get_request_var('sort_direction'), false,'assets.php?action=documents');
     if (cacti_sizeof($documents_list)) {
@@ -307,7 +308,7 @@ function documents(){
             form_selectable_cell(filter_value($documents['description'], get_request_var('filter')),$documents['id'],'');
             form_selectable_cell(filter_value($documents['modified_name'], get_request_var('filter')),$documents['id'],'');
             form_selectable_cell(substr($documents['last_modified'],0,16), $documents['id'], '');
-            $download_html = (isset($documents['path']) ? '<a href="'. $config['url_path'] . $documents['path'] .'" download="' . $documents['name']. '">下载</a> ':'-');
+            $download_html = (isset($documents['file_path']) ? '<a href="'. $config['url_path'] . $documents['file_path'] .'" download="' . $documents['file_name']. '">下载</a> ':'-');
             form_selectable_cell($download_html , $documents['id']);
             form_checkbox_cell($documents['name'], $documents['id']);
             form_end_row();
