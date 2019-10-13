@@ -295,7 +295,22 @@ function contract(){
     } else {
         $rows = get_request_var('rows');
     }
-    html_start_box("新增合同", '100%', '', '3', 'center', 'assets.php?action=contract_edit');
+    $buttons = array(
+	    array(
+	        'href'     => 'assets.php?action=contract_edit',
+	        'callback' => true,
+	        'title'    => "添加",
+	        'class'    => 'fa fa-plus'
+	    ),
+	    array(
+	        'href'     => 'assets.php?action=contract_import',
+	        'callback' => true,
+	        'title'    => "导入",
+	        'class'    => 'fa fa-upload'
+	    )
+	);
+    html_start_box("新增合同", '100%', '', '3', 'center', $buttons);
+    //html_start_box("新增合同", '100%', '', '3', 'center', 'assets.php?action=contract_edit');
     ?>
     <tr class='even'>
         <td>
@@ -737,4 +752,132 @@ function contract_accessory(){
     }
     draw_actions_dropdown($contract_accessory_actions);
     form_end();//分页form结束
+}
+/**
+ * 合同导入页面
+ */
+function contract_import(){
+    $form_array = array(
+        'description_1' => array(
+            'friendly_name' => '导入说明:点击标题栏下载模版,数据列数要与模版一致',
+            'method' => 'custom',
+            'max_length' => 20,
+            'value' => ''
+        ),
+        'file' => array(
+            'friendly_name' => "导入CSV",
+            'description' => "请选择需要导入的CSV文件",
+            'size' => '50',
+            'method' => 'file'
+        ),
+        // 'description_2' => array(
+        //     'friendly_name' => '',
+        //     'method' => 'custom',
+        //     'max_length' => 20,
+        //     'value' => ''
+        // ),
+        'do_import' => array(
+            'method' => 'hidden',
+            'value' => '1'
+        ),
+        'action' => array(
+            'method' => 'hidden',
+            'value' => 'contract_do_import'
+        )
+    );
+    form_start('assets.php', 'contract_import',true);
+    $buttons = array(
+        array(
+            'href'     => 'templates/contract.csv',
+            'callback' => false,
+            'title'    => "下载CSV模板",
+            'class'    => 'fa fa-download'
+        )
+    );
+    html_start_box("导入合同", '60%', '', '3', 'center', $buttons);
+    draw_edit_form(
+        array(
+            'config' => array('no_form_tag' => true),
+            'fields' => inject_form_variables($form_array)
+        )
+    );
+    html_end_box(true, true);
+    ?>
+    <!-- 操作按钮 -->
+    <table style='width:100%;text-align:center;'>
+		<tr>
+			<td class='saveRow'>
+                <input type="button" class="" onclick="window.location.href='assets.php?action=contract';" value="取消" role="button">
+                <input type="submit" id="submit" value="导入" role="button">
+			</td>
+		</tr>
+    </table>
+    <script type='text/javascript'>
+        $(function() {
+           
+        });
+    </script>
+    <?php
+}
+/**
+ * 合同导入操作
+ */
+function contract_do_import(){
+    if (isset($_FILES["file"])&&!empty($_FILES["file"]["name"])) {
+        $allowedExts = array("csv");
+        $temp = explode(".", $_FILES["file"]["name"]);
+        $extension = end($temp);
+        if ($_FILES["file"]["type"] == "application/vnd.ms-excel" && in_array($extension, $allowedExts)){
+            if ($_FILES["file"]["error"] > 0){
+                raise_message(2,"CSV上传错误",MESSAGE_LEVEL_ERROR);
+            }else{
+                $handle = fopen($_FILES['file']['tmp_name'],'r');
+                setlocale(LC_ALL, 'zh_CN');
+                $line_number = 0;
+                while(($value = fgetcsv($handle)) !== FALSE){
+                    if($line_number == 0){
+                        $line_number++;
+                        continue;
+                    }
+                    $value = eval('return '.iconv('gbk','utf-8',var_export($value,true)).';');
+                    if(sizeof($value) != 7){
+                        raise_message(2,"导入列数量不正确",MESSAGE_LEVEL_ERROR);
+                        header('Location: assets.php?action=contract_import');
+                        exit();
+                    }
+                    $count = db_fetch_row_prepared('SELECT * FROM plugin_assets_contract WHERE name = ? limit 1',array($value[0]));
+                    if (!empty($count)) { //说明重复
+                        continue;
+                    }
+                    $save = array();
+                    $save['name'] = $value[0];
+                    //$save['type_id'] = '';
+                    $save['number'] = $value[1];
+                    $save['company'] =  $value[2];
+                    $save['signing_date'] = $value[3];
+                    $save['due_date'] =  $value[4];
+                    $save['content_text'] = $value[5];
+                    $save['description'] =  $value[6];
+                    //$save['is_alarm'] = ''
+                    //$save['alarm_advance_day'] = '';
+                    //$save['alarm_frequency'] = '';
+                    //$save['notification_id'] ='';
+                    $save['last_modified'] = date('Y-m-d H:i:s', time());
+                    $save['modified_by'] = $_SESSION['sess_user_id'];
+                    sql_save($save, 'plugin_assets_contract');
+                }
+                fclose($handle);
+                header('Location: assets.php?action=contract');
+                exit();
+            }
+        }else{
+            raise_message(2,"请上传CSV类型文件",MESSAGE_LEVEL_ERROR);
+            header('Location: assets.php?action=contract_import');
+            exit();
+        }
+    }else{
+        raise_message(2,"请选择需要导入的文件",MESSAGE_LEVEL_ERROR);
+        header('Location: assets.php?action=contract_import');
+        exit;
+    }
 }

@@ -52,6 +52,7 @@ function assets_draw_navigation_text ($nav) {
 
     $nav['assets.php:equipment'] = array('title' => "设备管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=equipment', 'level' => '1');
     $nav['assets.php:equipment_edit'] = array('title' => "设备编辑", 'mapping' => 'assets:,assets.php:equipment', 'url' => 'assets.php?action=equipment_edit', 'level' => '2');
+    $nav['assets.php:equipment_import'] = array('title' => "设备导入", 'mapping' => 'assets:,assets.php:equipment', 'url' => 'assets.php?action=equipment_import', 'level' => '2');
     $nav['assets.php:equipment_almacenar_edit'] = array('title' => "设备出入库", 'mapping' => 'assets:,assets.php:equipment', 'url' => 'assets.php?action=equipment_almacenar_edit', 'level' => '2');
     $nav['assets.php:equipment_almacenar'] = array('title' => "设备出入库记录", 'mapping' => 'assets:,assets.php:equipment', 'url' => 'assets.php?action=equipment_almacenar', 'level' => '2');
 
@@ -60,9 +61,11 @@ function assets_draw_navigation_text ($nav) {
 
     $nav['assets.php:ipaddress'] = array('title' => "IP地址管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=ipaddress', 'level' => '1');
     $nav['assets.php:ipaddress_edit'] = array('title' => "IP地市编辑", 'mapping' => 'assets:,assets.php:ipaddress', 'url' => 'assets.php?action=ipaddress_edit', 'level' => '2');
+    $nav['assets.php:ipaddress_import'] = array('title' => "IP地址导入", 'mapping' => 'assets:,assets.php:ipaddress', 'url' => 'assets.php?action=ipaddress_import', 'level' => '2');
 
     $nav['assets.php:contract'] = array('title' => "合同管理", 'mapping' => 'assets:', 'url' => 'assets.php?action=contract', 'level' => '1');
     $nav['assets.php:contract_edit'] = array('title' => "合同编辑", 'mapping' => 'assets:,assets.php:contract', 'url' => 'assets.php?action=contract_edit', 'level' => '2');
+    $nav['assets.php:contract_import'] = array('title' => "合同导入", 'mapping' => 'assets:,assets.php:contract', 'url' => 'assets.php?action=contract_import', 'level' => '2');
     $nav['assets.php:contract_accessory_edit'] = array('title' => "合同附件编辑", 'mapping' => 'assets:,assets.php:contract', 'url' => 'assets.php?action=contract_accessory_edit', 'level' => '2');
     $nav['assets.php:contract_accessory'] = array('title' => "合同附件记录", 'mapping' => 'assets:,assets.php:contract', 'url' => 'assets.php?action=contract_accessory', 'level' => '2');
 

@@ -39,6 +39,14 @@ switch(get_request_var('action')) {
 	case 'equipment_save'://设备保存
 		equipment_save();
 		break;
+	case 'equipment_import'://设备导入页面
+		general_header();
+		equipment_import();
+		bottom_footer();
+		break;
+	case 'equipment_do_import'://设备执行导入
+		equipment_do_import();
+		break;
 	case 'equipment_almacenar_edit'://设备出入库页面
 		general_header();
 		equipment_almacenar_edit();
@@ -80,6 +88,14 @@ switch(get_request_var('action')) {
 	case 'ipaddress_save'://IP地址保存
 		ipaddress_save();
 		break;
+	case 'ipaddress_import'://IP地址导入
+		general_header();
+		ipaddress_import();
+		bottom_footer();
+		break;
+	case 'ipaddress_do_import'://IP地址执行导入
+		ipaddress_do_import();
+		break;
 	case 'contract'://合同列表入库
 		general_header();
 		assets_tabs('contract');
@@ -93,6 +109,14 @@ switch(get_request_var('action')) {
 		break;
 	case 'contract_save'://合同保存
 		contract_save();
+		break;
+	case 'contract_import'://合同导入页面
+		general_header();
+		contract_import();
+		bottom_footer();
+		break;
+	case 'contract_do_import'://合同执行导入
+		contract_do_import();
 		break;
 	case 'contract_accessory_edit'://合同附件新增编辑页面
 		general_header();
