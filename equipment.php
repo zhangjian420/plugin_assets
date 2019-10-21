@@ -293,7 +293,6 @@ function equipment_almacenar_save(){
         $id=sql_save($equipment_almacenar, 'plugin_assets_equipment_almacenar');
         if ($id) {
             sql_save($equipment, 'plugin_assets_equipment');//更新设备总量
-            // 如果出库成功后，更新剩余入库SN号 到 出库中。其实就是删除 
             raise_message(1);
             header('Location: assets.php?action=equipment');
             exit;
@@ -308,8 +307,15 @@ function equipment_almacenar_save(){
 function equipment_edit(){
     assets_tabs('equipment');//设备管理选项卡
     $data = array();//页面显示data
+    
     if (!isempty_request_var('id')) {
         $data= db_fetch_row_prepared('SELECT * FROM plugin_assets_equipment WHERE id = ?', array(get_request_var('id')));
+        $in_sns = getExistSns(get_request_var('id'),"入库");
+        $out_sns = getExistSns(get_request_var('id'),"出库");
+        $diff_sns = array_diff($in_sns,$out_sns);
+        
+        $data["in_sns"] = implode(",",$diff_sns); // 剩余的入库SN号
+        $data["out_sns"] = implode(",",$out_sns); // 所有的出库SN号
     }
 	$field_array = array(
 		'id' => array(
@@ -352,6 +358,20 @@ function equipment_edit(){
 			'description' =>'请正确填写设备数量',
 			'value' => (isset($data['total']) ? $data['total']:'')
         ),
+	    'in_sns' => array(
+	        'friendly_name' => '入库设备SN号',
+	        'method' => 'textarea',
+	        'textarea_rows' => '3',
+	        'textarea_cols' => '70',
+	        'value' => (isset($data['in_sns']) ? $data['in_sns']:'')
+	    ),
+	    'out_sns' => array(
+	        'friendly_name' => '出库设备SN号',
+	        'method' => 'textarea',
+	        'textarea_rows' => '3',
+	        'textarea_cols' => '70',
+	        'value' => (isset($data['out_sns']) ? $data['out_sns']:'')
+	    )
 	);
 	form_start('assets.php', 'equipment_edit');//设备编辑form开始
 	if (isset($data['id'])) {
@@ -377,6 +397,11 @@ function equipment_edit(){
 			</td>
 		</tr>
 	</table>
+	<script type="text/javascript">
+		$(function(){
+			$("#total,#in_sns,#out_sns").attr("readonly",true);
+		});
+	</script>
     <?php
     form_end();//表单编辑结束
 }
@@ -643,6 +668,7 @@ function equipment_almacenar(){
 						<span>
 							<input type='button' class='ui-button ui-corner-all ui-widget' id='refresh' value='<?php print __esc('Go');?>' title='<?php print __esc('Set/Refresh Filters');?>'>
 							<input type='button' class='ui-button ui-corner-all ui-widget' id='clear' value='<?php print __esc('Clear');?>' title='<?php print __esc('Clear Filters');?>'>
+							<input type='button' class='ui-button ui-corner-all ui-widget' id='back' value='<?php print __esc('返回');?>' title='<?php print __esc('返回');?>'>
 						</span>
                         </td>
                     </tr>
@@ -669,6 +695,10 @@ function equipment_almacenar(){
                     });
                     $('#clear').click(function() {
                         clearFilter();
+                    });
+                    $("#back").click(function(){
+                    	strURL = 'assets.php?action=equipment&clear=1&header=false';
+                        loadPageNoHeader(strURL);
                     });
                     $('#form_equipment_almacenar').submit(function(event) {
                         event.preventDefault();
@@ -699,9 +729,10 @@ function equipment_almacenar(){
         'operation_date'    => array('display' => "入库/出库日期", 'align' => 'left',  'sort' => 'ASC', 'tip' => "入库/出库日期"),
         'operation_person'    => array('display' => "出库/入库人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "出库/入库人"),
         'count'    => array('display' => "数量", 'align' => 'left',  'sort' => 'ASC', 'tip' => "数量"),
+        'equipment_sn'    => array('display' => "设备SN号", 'align' => 'left',  'sort' => 'ASC', 'tip' => "设备SN号"),
         'description'    => array('display' => "备注", 'align' => 'left',  'sort' => 'ASC', 'tip' => "备注"),
         'modified_name'    => array('display' => "操作人", 'align' => 'left',  'sort' => 'ASC', 'tip' => "操作人"),
-        'last_modified' => array('display' =>'操作时间', 'align' => 'left', 'sort' => 'ASC', 'tip' => "操作时间")
+        //'last_modified' => array('display' =>'操作时间', 'align' => 'left', 'sort' => 'ASC', 'tip' => "操作时间")
     );
     html_header_sort($display_text, get_request_var('sort_column'), get_request_var('sort_direction'), false,'assets.php?action=equipment_almacenar&equipment_id=' . $equipment_id);
     if (cacti_sizeof($equipment_almacenar_list)) {
@@ -712,9 +743,10 @@ function equipment_almacenar(){
             form_selectable_cell(filter_value($equipment_almacenar['operation_date'], get_request_var('filter')),$equipment_almacenar['id'],'','left');
             form_selectable_cell(filter_value($equipment_almacenar['operation_person'], get_request_var('filter')),$equipment_almacenar['id'],'','left');
             form_selectable_cell($equipment_almacenar['count'],$equipment_almacenar['id'],'','left');
+            form_selectable_cell($equipment_almacenar['equipment_sn'],$equipment_almacenar['id'],'','left');
             form_selectable_cell(filter_value($equipment_almacenar['description'], get_request_var('filter')),$equipment_almacenar['id'],'','left');
             form_selectable_cell($equipment_almacenar['modified_name'],$equipment_almacenar['id'],'','left');
-            form_selectable_cell(substr($equipment_almacenar['last_modified'],0,16), $equipment_almacenar['id'], '', 'left');
+            //form_selectable_cell(substr($equipment_almacenar['last_modified'],0,16), $equipment_almacenar['id'], '', 'left');
             form_end_row();
         }
     } else {
@@ -868,7 +900,7 @@ function getExistSns($snid,$type=""){
         $sql .= " and operation_type = '" .$type . "'";
     }
     
-    $sns = db_fetch_assoc("select equipment_sn from plugin_assets_equipment_almacenar where equipment_id = " . $snid);
+    $sns = db_fetch_assoc($sql);
     $ret = array();
     foreach ($sns as $sn){
         $sn_arr = explode(",",$sn["equipment_sn"]);
@@ -890,4 +922,11 @@ function getDiffSns($srcSns,$cmpSns){
         }
     }
     return $diff;
+}
+
+// 根据设备id获取出入库设备SN号
+function getInOutSns($eqid){
+    $in_sns = getExistSns($eqid,"入库");
+    $out_sns = getExistSns($eqid,"出库");
+    
 }
