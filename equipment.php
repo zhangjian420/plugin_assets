@@ -260,7 +260,7 @@ function equipment_almacenar_save(){
             $sns_int = array_intersect($has_sns,$sns);
             if(sizeof($sns_int) > 0){ // 说明新添加的SN号有重复
                 $chongfu = implode(",",array_unique(array_values($sns_int)));
-                raise_message(2,'重复录入SN号，重复的SN有:'.$chongfu,MESSAGE_LEVEL_ERROR);
+                raise_message(2,'重复录入SN号，请核实SN号：'.$chongfu,MESSAGE_LEVEL_ERROR);
                 header('Location: assets.php?action=equipment_almacenar_edit&equipment_id=' . $equipment_almacenar['equipment_id'] . '&operation_type=' . $equipment_almacenar['operation_type']);
                 exit;
             }
@@ -275,8 +275,12 @@ function equipment_almacenar_save(){
                 exit;
             }
             $left_sns = getExistSns($equipment['id'],"入库"); // 剩余的入库SN号集合
-            $diff_sns = getDiffSns($left_sns,$sns);
-            cacti_log(json_encode($diff_sns));
+            $diff_sns = getDiffSns($left_sns,$sns); // 判断出库的SN号是不是在剩余SN号里面
+            if(sizeof($diff_sns) > 0){ // 如果有不在里面的，提示报错
+                raise_message(2,'出库SN号不存在，请核实SN号：'.(implode(",",$diff_sns)),MESSAGE_LEVEL_ERROR);
+                header('Location: assets.php?action=equipment_almacenar_edit&equipment_id=' . $equipment_almacenar['equipment_id'] . '&operation_type=' . $equipment_almacenar['operation_type']);
+                exit;
+            }
             
             if($equipment_almacenar['count']>$equipment['total']){
                 raise_message(2,'出库量大于设备数量',MESSAGE_LEVEL_ERROR);
@@ -289,6 +293,7 @@ function equipment_almacenar_save(){
         $id=sql_save($equipment_almacenar, 'plugin_assets_equipment_almacenar');
         if ($id) {
             sql_save($equipment, 'plugin_assets_equipment');//更新设备总量
+            // 如果出库成功后，更新剩余入库SN号 到 出库中。其实就是删除
             raise_message(1);
             header('Location: assets.php?action=equipment');
             exit;
@@ -555,7 +560,8 @@ function equipment_almacenar_edit(){
     <script>
 		$(document).ready(function(){
             $("#operation_date").prop("readonly", true).datepicker({
-                changeMonth: false,
+                changeYear: true,
+                changeMonth: true,
                 dateFormat: "yy-mm-dd",
                 onClose: function(selectedDate) {
 
