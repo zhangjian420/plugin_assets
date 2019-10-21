@@ -555,7 +555,8 @@ function equipment_almacenar_edit(){
     <script>
 		$(document).ready(function(){
             $("#operation_date").prop("readonly", true).datepicker({
-                changeMonth: false,
+                changeYear: true,
+                changeMonth: true,
                 dateFormat: "yy-mm-dd",
                 onClose: function(selectedDate) {
 
