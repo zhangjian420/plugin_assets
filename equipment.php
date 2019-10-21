@@ -293,7 +293,7 @@ function equipment_almacenar_save(){
         $id=sql_save($equipment_almacenar, 'plugin_assets_equipment_almacenar');
         if ($id) {
             sql_save($equipment, 'plugin_assets_equipment');//更新设备总量
-            // 如果出库成功后，更新剩余入库SN号 到 出库中。其实就是删除
+            // 如果出库成功后，更新剩余入库SN号 到 出库中。其实就是删除 
             raise_message(1);
             header('Location: assets.php?action=equipment');
             exit;
