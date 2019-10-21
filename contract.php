@@ -177,14 +177,16 @@ function contract_edit(){
 	<script>
 		$(document).ready(function(){
             $("#signing_date").prop("readonly", true).datepicker({
-                changeMonth: false,
+                changeYear: true,
+                changeMonth: true,
                 dateFormat: "yy-mm-dd",
                 onClose: function(selectedDate) {
 
                 }
             });
             $("#due_date").prop("readonly", true).datepicker({
-                changeMonth: false,
+                changeYear: true,
+                changeMonth: true,
                 dateFormat: "yy-mm-dd",
                 onClose: function(selectedDate) {
 
@@ -396,7 +398,8 @@ function contract(){
                         applyFilter();
                     });
                     $("#signing_date").prop("readonly", true).datepicker({
-                        changeMonth: false,
+                        changeYear: true,
+                        changeMonth: true,
                         dateFormat: "yy-mm-dd",
                         onClose: function(selectedDate) {
                             applyFilter();

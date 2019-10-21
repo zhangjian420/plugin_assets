@@ -257,7 +257,8 @@ function documents(){
                         applyFilter();
                     });
                     $("#last_modified").prop("readonly", true).datepicker({
-                        changeMonth: false,
+                        changeYear: true,
+                        changeMonth: true,
                         dateFormat: "yy-mm-dd",
                         onClose: function(selectedDate) {
                             applyFilter();
