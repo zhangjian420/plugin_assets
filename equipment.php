@@ -225,13 +225,18 @@ function equipment_almacenar_save(){
     $equipment['total']=get_filter_request_var('equipment_total');//设备数量
     $equipment['last_modified'] = date('Y-m-d H:i:s', time());
     $equipment['modified_by']   = $_SESSION['sess_user_id'];
+    // 获取已有的SN号集合
+    $has_sns = getExistSns($equipment['id']);
     //设备设备表
     $equipment_almacenar['equipment_id'] = get_filter_request_var('equipment_id');//设备ID
     $equipment_almacenar['operation_type'] = get_nfilter_request_var('operation_type');//操作类型：入库-出库
     if($equipment_almacenar['operation_type']=='入库'){
         $equipment_almacenar['contract_number'] = form_input_validate(get_nfilter_request_var('contract_number'), 'contract_number', '', true, 3);//合同编号
     }
-    $equipment_almacenar['equipment_sn'] = form_input_validate(get_nfilter_request_var('equipment_sn'), 'equipment_sn', '', false, 3);//设备SN号
+    
+    $equipment_sn = form_input_validate(get_nfilter_request_var('equipment_sn'), 'equipment_sn', '', false, 3);//设备SN号
+    $equipment_almacenar['equipment_sn'] = implode(",",getEquipmentSns($equipment_sn));
+    
     $equipment_almacenar['count'] = form_input_validate(get_nfilter_request_var('count'), 'count', '^[0-9]+$', false, 3);//数量
     $equipment_almacenar['operation_date'] = form_input_validate(get_nfilter_request_var('operation_date'), 'operation_date', '', false, 3);//设备出入库日期
     $equipment_almacenar['operation_person'] = form_input_validate(get_nfilter_request_var('operation_person'), 'operation_person', '', false, 3);//设备出入库人
@@ -246,9 +251,33 @@ function equipment_almacenar_save(){
 		exit;
 	}else{
         if($equipment_almacenar['operation_type']=='入库'){
+            $sns = getEquipmentSns($equipment_sn);
+            if($equipment_almacenar['count'] != sizeof($sns)){
+                raise_message(2,'入库数量和SN号数量不匹配',MESSAGE_LEVEL_ERROR);
+                header('Location: assets.php?action=equipment_almacenar_edit&equipment_id=' . $equipment_almacenar['equipment_id'] . '&operation_type=' . $equipment_almacenar['operation_type']);
+                exit;                
+            }
+            $sns_int = array_intersect($has_sns,$sns);
+            if(sizeof($sns_int) > 0){ // 说明新添加的SN号有重复
+                $chongfu = implode(",",array_unique(array_values($sns_int)));
+                raise_message(2,'重复录入SN号，重复的SN有:'.$chongfu,MESSAGE_LEVEL_ERROR);
+                header('Location: assets.php?action=equipment_almacenar_edit&equipment_id=' . $equipment_almacenar['equipment_id'] . '&operation_type=' . $equipment_almacenar['operation_type']);
+                exit;
+            }
+            
             $equipment['total']=$equipment['total']+$equipment_almacenar['count'];
         }
         if($equipment_almacenar['operation_type']=='出库'){
+            $sns = getEquipmentSns($equipment_sn); // 需要出库的SN号集合
+            if($equipment_almacenar['count'] != sizeof($sns)){
+                raise_message(2,'出库数量和SN号数量不匹配',MESSAGE_LEVEL_ERROR);
+                header('Location: assets.php?action=equipment_almacenar_edit&equipment_id=' . $equipment_almacenar['equipment_id'] . '&operation_type=' . $equipment_almacenar['operation_type']);
+                exit;
+            }
+            $left_sns = getExistSns($equipment['id'],"入库"); // 剩余的入库SN号集合
+            $diff_sns = getDiffSns($left_sns,$sns);
+            cacti_log(json_encode($diff_sns));
+            
             if($equipment_almacenar['count']>$equipment['total']){
                 raise_message(2,'出库量大于设备数量',MESSAGE_LEVEL_ERROR);
                 header('Location: assets.php?action=equipment_almacenar_edit&equipment_id=' . $equipment_almacenar['equipment_id'] . '&operation_type=' . $equipment_almacenar['operation_type']);
@@ -413,14 +442,6 @@ function equipment_almacenar_edit(){
             'value' => (isset($data['contract_number']) ? $data['contract_number']:'')
         );
         $field_array['contract_number']=$contract_number;
-        $equipment_sn=$count=array(
-            'friendly_name' => '设备SN号',
-            'method' => 'textbox',
-            'max_length' => 10,
-            'description' =>'请正确填写设备SN号',
-            'value' => ''
-        );
-        $field_array['equipment_sn']=$equipment_sn;
         $count=array(
             'friendly_name' => '入库数量',
             'method' => 'textbox',
@@ -429,6 +450,16 @@ function equipment_almacenar_edit(){
             'value' => ''
         );
         $field_array['count']=$count;
+        $equipment_sn=array(
+            'friendly_name' => '设备SN号',
+            'method' => 'textarea',
+            'textarea_rows' => '3',
+            'textarea_cols' => '70',
+            'description' =>'请正确填写设备SN号，以英文逗号隔开',
+            'placeholder' => __('请正确填写设备SN号，以英文逗号隔开'),
+            'value' => ''
+        );
+        $field_array['equipment_sn']=$equipment_sn;
         $operation_date=array(
             'friendly_name' => '入库日期',
             'method' => 'textbox',
@@ -453,14 +484,6 @@ function equipment_almacenar_edit(){
             'value' => '出库'
         );
         $field_array['operation_type']=$operation_type_field;
-        $equipment_sn=$count=array(
-            'friendly_name' => '设备SN号',
-            'method' => 'textbox',
-            'max_length' => 10,
-            'description' =>'请正确填写设备SN号',
-            'value' => ''
-        );
-        $field_array['equipment_sn']=$equipment_sn;
         $count=array(
             'friendly_name' => '出库数量',
             'method' => 'textbox',
@@ -469,6 +492,16 @@ function equipment_almacenar_edit(){
             'value' => ''
         );
         $field_array['count']=$count;
+        $equipment_sn=array(
+            'friendly_name' => '设备SN号',
+            'method' => 'textarea',
+            'textarea_rows' => '3',
+            'textarea_cols' => '70',
+            'description' =>'请正确填写设备SN号，以英文逗号隔开',
+            'placeholder' => __('请正确填写设备SN号，以英文逗号隔开'),
+            'value' => ''
+        );
+        $field_array['equipment_sn']=$equipment_sn;
         $operation_date=array(
             'friendly_name' => '出库日期',
             'method' => 'textbox',
@@ -807,4 +840,48 @@ function equipment_do_import(){
         header('Location: assets.php?action=equipment_import');
         exit;
     }
+}
+
+// 获取SN号数组
+function getEquipmentSns($equipment_sn){
+    $equipment_sn = str_replace("，",",",$equipment_sn);
+    $sns = explode(",",$equipment_sn);    
+    
+    $ret = array();
+    foreach ($sns as $sn){
+        if(!empty($sn)){
+            $ret[] = $sn;
+        }
+    }
+    return $ret;
+}
+// 根据设备id获取已经存在的SN号
+function getExistSns($snid,$type=""){
+    $sql = "select equipment_sn from plugin_assets_equipment_almacenar where equipment_id = " . $snid;
+    if (!empty($type)) {
+        $sql .= " and operation_type = '" .$type . "'";
+    }
+    
+    $sns = db_fetch_assoc("select equipment_sn from plugin_assets_equipment_almacenar where equipment_id = " . $snid);
+    $ret = array();
+    foreach ($sns as $sn){
+        $sn_arr = explode(",",$sn["equipment_sn"]);
+        foreach ($sn_arr as $arr){
+            if(!empty($arr)){
+                $ret[] = $arr;
+            }
+        }
+    }
+    return $ret;
+}
+
+// 返回没有在源数组的值
+function getDiffSns($srcSns,$cmpSns){
+    $diff = array();
+    foreach ($cmpSns as $sn){
+        if(!in_array($sn,$srcSns)){
+            $diff[] = $sn;
+        }
+    }
+    return $diff;
 }
