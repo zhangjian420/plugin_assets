@@ -691,8 +691,9 @@ function equipment_almacenar(){
                         clearFilter();
                     });
                     $("#back").click(function(){
-                    	strURL = 'assets.php?action=equipment&clear=1&header=false';
-                        loadPageNoHeader(strURL);
+                    	// strURL = 'assets.php?action=equipment&clear=1&header=false';
+                        // loadPageNoHeader(strURL);
+                        window.location.href='assets.php?action=equipment';
                     });
                     $('#form_equipment_almacenar').submit(function(event) {
                         event.preventDefault();
