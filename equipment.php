@@ -392,14 +392,12 @@ function equipment_edit(){
 		</tr>
 	</table>
 	<script type="text/javascript">
-		$(function(){
-			var id = $("#id").val();
-			if(id != 0){
+    	$(function(){
+    		var id = $("#id").val();
+    		if(id != 0){
     			$("#total,#in_sns,#out_sns").attr("readonly",true);
-			}
-		});
-			$("#total,#in_sns,#out_sns").attr("readonly",true);
-		});
+    		}
+    	});
 	</script>
     <?php
     form_end();//表单编辑结束
@@ -712,7 +710,11 @@ function equipment_almacenar(){
     html_end_box();
     $sql_where=' AND assets_equipment_almacenar.equipment_id='. $equipment_id;
     if (get_request_var('filter') != '') {
-        $sql_where =$sql_where . " AND (assets_equipment_almacenar.operation_type LIKE '%" . get_request_var('filter') . "%' OR assets_equipment_almacenar.operation_person like '%" . get_request_var('filter') . "%' OR assets_equipment_almacenar.description like '%" . get_request_var('filter') . "%')";
+        $sql_where =$sql_where . " AND (
+            assets_equipment_almacenar.operation_type LIKE '%" . get_request_var('filter') . "%'
+            OR assets_equipment_almacenar.operation_person like '%" . get_request_var('filter') . "%'
+            OR assets_equipment_almacenar.equipment_sn like '%" . get_request_var('filter') . "%'
+            OR assets_equipment_almacenar.description like '%" . get_request_var('filter') . "%')";
     } 
     $total_rows = db_fetch_cell("SELECT count(*) FROM plugin_assets_equipment_almacenar AS assets_equipment_almacenar LEFT JOIN user_auth AS user_auth ON assets_equipment_almacenar.modified_by=user_auth.id WHERE 1=1 $sql_where");
     $sql_order = get_order_string();
